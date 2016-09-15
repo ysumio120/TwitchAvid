@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>TwitchAvid</title>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	
+	<!-- Stylesheets -->
+	<!-- <link rel="stylesheet" type="text/css" href="assets/css/reset.css"> -->
+	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+
+	<!-- JQuery -->
+	<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
+
+	<!-- Jquery UI -->
+	<script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
+	<script src= "http://player.twitch.tv/js/embed/v1.js"></script>
+</head>
+<body>
+	<div class="container-fluid">
+		<div class="row">
+			<label for="streamer">Enter Stream</label><br>
+			<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
+			<button id="startStream">Watch</button><br>
+			<label for="streamer">Enter Chat</label><br>
+			<input type="text" name="Chat" placeholder="Chat" id="chat"/>
+			<button id="startChat">Chat</button>
+		</div>
+		<div class="row player">
+			<!-- <div class="player col-xl-12"></div> -->
+			<div class="test col-lg-6"></div>
+		</div>
+
+	</div>
+
+	<script type="text/javascript" src="assets/js/app.js"></script>
+</body>
+</html>
