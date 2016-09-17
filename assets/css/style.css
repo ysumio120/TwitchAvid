@@ -11,18 +11,36 @@
 .vid iframe {
 	position: absolute;
 	width: 100%;
-	height: 100%
+	height: 100%;
+	z-index: 0
 
 }
 
-.vid:hover {
+.vid img {
+	position: absolute;
+	z-index: 1;
+	width: 7%;
+    height: 12%;
+    top: 87%;
+    left: 47%;
+    display: none;
+}
+
+.vid:hover img {
+	display: block;
+}
+
+/*.vid:hover {
 	border: 5px solid red;
 }
+*/
 
 .ui-droppable-active {
 	border: 2px dashed black;
+	opacity: 0.3;
 }
 
 .ui-droppable-hover {
 	border: 2px solid black;
+	opacity: 1.0;
 }

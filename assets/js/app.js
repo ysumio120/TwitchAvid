@@ -7,9 +7,6 @@ $(document).ready(function() {
 	$(".test").droppable({
 		addClasses: true,
 		accept: ".vid",
-		classes: {
-			"ui-droppable": "highlight" 
-		}
 	});
 
 	/* On success drop, 
@@ -25,11 +22,6 @@ $(document).ready(function() {
 		ui.draggable.appendTo(this);
 		ui.draggable.css("left", 0);
 		ui.draggable.css("top", 0);
-	});
-
-	//When dragging, highlight acceptable 'dropzones'
-	$(".test").on("dropactivate", function(event, ui) {
-		//$(this).css({"border": "2px dashed black", "opacity":"0.5"});
 	});
 
 	//If draggable element is not fully dropped, return back to original position
@@ -77,7 +69,12 @@ $(document).ready(function() {
 			vidEmbed.addClass("vid");
 			vidEmbed.data("name", streamName);
 			vidEmbed.appendTo(vid_container);
-			
+
+			//Move cursor img for draggable handle
+			var move = $("<img>");
+			move.attr("src", "assets/images/move_cursor.png");
+			move.appendTo(".vid");
+
 			// Configure options for iframe embed
 			var options = {
 			//	width: 720,
@@ -91,13 +88,17 @@ $(document).ready(function() {
 			vidEmbed.draggable({
 				addClasses: true,
 				opacity: 0.50,
+			//	revert: "invalid",
+			//	revertDuration: 100,
+				handle: "img",
+			//	iframeFix: true,
 				helper: function() {
 
 					// Get current size of embed video
 					var width = vid_container.children().innerWidth();
 					var height = vid_container.children().innerHeight();
 					
-					// Make copy of stream element and its container
+					// Make copy of embed element and its container
 					var clone = vid_container.clone();
 					
 					// Create 'shadow' of element with same dimensions
@@ -110,7 +111,6 @@ $(document).ready(function() {
 				}
 			});
 		});
-
 
 		$("#streamer").val("");
 		return false;
