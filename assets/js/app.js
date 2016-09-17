@@ -1,5 +1,43 @@
 $(document).ready(function() {
 	var vidNum = 0;
+	$("<div>").addClass("test col-lg-6").prependTo(".player");
+	$("<div>").addClass("temp").appendTo(".test");
+
+	//Activate droppable and accept draggables
+	$(".test").droppable({
+		addClasses: true,
+		accept: ".vid",
+		classes: {
+			"ui-droppable": "highlight" 
+		}
+	});
+
+	/* On success drop, 
+	 * 	Append draggable element
+	 *	Reset position of draggable element
+	 * 	Remove temporary div placeholder
+	 *  Remove border styling
+	 */
+	$(".test").on("drop", function(event, ui) {
+		$(this).removeAttr("style");
+		$(this).removeClass("test");
+		$(this).empty();
+		ui.draggable.appendTo(this);
+		ui.draggable.css("left", 0);
+		ui.draggable.css("top", 0);
+	});
+
+	//When dragging, highlight acceptable 'dropzones'
+	$(".test").on("dropactivate", function(event, ui) {
+		//$(this).css({"border": "2px dashed black", "opacity":"0.5"});
+	});
+
+	//If draggable element is not fully dropped, return back to original position
+	$(".test").on("dropdeactivate", function(event, ui) {
+		$(this).children().removeAttr("style");
+		ui.draggable.css("left", 0);
+		ui.draggable.css("top", 0);
+	});
 
 	$("#startStream").on("click", function() {
 		var streamer = $("#streamer").val();
@@ -8,6 +46,9 @@ $(document).ready(function() {
 		$.ajax({
 			url: query, 
 			method: 'GET', 
+			headers: {
+				"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
+			},
 			error : function(jqXHR, textStatus, errorThrown) { 
     			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
        				console.log('There was a 404 error.'); 
@@ -33,47 +74,41 @@ $(document).ready(function() {
 			vidNum++;
 			var vidEmbed = $("<div>");
 			vidEmbed.attr("id", streamName + vidNum);
-			vidEmbed.draggable({addClasses: true});
 			vidEmbed.addClass("vid");
 			vidEmbed.data("name", streamName);
+			vidEmbed.appendTo(vid_container);
+			
+			// Configure options for iframe embed
 			var options = {
-				width: 720,
-				height: 400,
+			//	width: 720,
+			//	height: 400,
 				channel: streamName
 			};
 
-			vidEmbed.appendTo(vid_container);
-			console.log(vidEmbed);
+			// Create interactive Iframe Embed
 			var player = new Twitch.Player(streamName + vidNum, options);
-
-			//$(vidEmbed).children().draggable({addClasses: true});
 			
+			vidEmbed.draggable({
+				addClasses: true,
+				opacity: 0.50,
+				helper: function() {
 
-			console.log(vid_container);
+					// Get current size of embed video
+					var width = vid_container.children().innerWidth();
+					var height = vid_container.children().innerHeight();
+					
+					// Make copy of stream element and its container
+					var clone = vid_container.clone();
+					
+					// Create 'shadow' of element with same dimensions
+					clone.children().empty();
+					clone.children().css("width", width);
+					clone.children().css("height", height);
+					clone.children().css("background-color", "grey");
 
-			//Activate droppable and accept draggables
-			$(".test").droppable({addClasses: true});
-			$(".test").droppable({accept: ".vid"});
-
-			//Append draggable element and reset position
-			$(".test").on("drop", function(event, ui) {
-				ui.draggable.appendTo(this);
-				$(this).removeClass("test");
-				ui.draggable.css("left", 0);
-				ui.draggable.css("top", 0);
+					return clone;
+				}
 			});
-
-			//When dragging, highlight 'dropzone'
-			$(".test").on("dropactivate", function(event, ui) {
-				$(this).css({"border": "5px solid black"});
-			});
-
-			//If draggable element is not fully dropped, return back to original position
-			$(".test").on("dropdeactivate", function(event, ui) {
-				ui.draggable.css("left", 0);
-				ui.draggable.css("top", 0);
-			});
-			//console.log(player);
 		});
 
 

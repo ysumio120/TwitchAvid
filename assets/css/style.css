@@ -1,16 +1,17 @@
-.vid {
+.vid,
+.temp {
 	position: relative;
 	width: 100%;
 	height: 0;
 	padding-bottom: 56.25%;
 	left:0;
-	top:0;
+	top:0
 }
 
 .vid iframe {
 	position: absolute;
 	width: 100%;
-	height: 100%;
+	height: 100%
 
 }
 
@@ -18,7 +19,10 @@
 	border: 5px solid red;
 }
 
-.test {
-	width: 700px;
-	height: 400px;
+.ui-droppable-active {
+	border: 2px dashed black;
+}
+
+.ui-droppable-hover {
+	border: 2px solid black;
 }
