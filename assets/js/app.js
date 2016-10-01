@@ -1,12 +1,28 @@
 $(document).ready(function() {
 	var vidNum = 0;
-	$("<div>").addClass("test col-lg-6").prependTo(".player");
-	$("<div>").addClass("temp").appendTo(".test");
-
+	var test1 = $("<div>").addClass("col-lg-6 highlight");
+	test1.appendTo(".player");
+	$("<div>").addClass("temp").appendTo(test1);
+	
+	//TEST
+	var test2 = $("<div>").addClass("col-lg-6 highlight");
+	test2.appendTo(".player");
+	$("<div>").addClass("temp").appendTo(test2);
+	
 	//Activate droppable and accept draggables
-	$(".test").droppable({
+	$(test1).droppable({
 		addClasses: true,
 		accept: ".vid",
+		classes: {
+			"ui-droppable-active": "highlight1"
+		}
+	});
+	$(test2).droppable({
+		addClasses: true,
+		accept: ".vid",
+		classes: {
+			"ui-droppable-active": "highlight1"
+		}
 	});
 
 	/* On success drop, 
@@ -15,21 +31,33 @@ $(document).ready(function() {
 	 * 	Remove temporary div placeholder
 	 *  Remove border styling
 	 */
-	$(".test").on("drop", function(event, ui) {
-		$(this).removeAttr("style");
-		$(this).removeClass("test");
+	$(document).on("drop", ".ui-droppable" ,function(event, ui) {
+		//$(this).removeAttr("style");
+		//$(this).removeClass("test");
 		$(this).empty();
+		var oldParent = ui.draggable.parent();
+		var newTemp = $("<div>");
+		newTemp.addClass("temp");
+		oldParent.droppable("enable");
+		// oldParent.droppable({
+		// 	addClasses: true,
+		// 	accept: ".vid"
+		// });
+
+		newTemp.appendTo(oldParent);
 		ui.draggable.appendTo(this);
 		ui.draggable.css("left", 0);
 		ui.draggable.css("top", 0);
+
+		ui.draggable.parent().droppable("disable");
 	});
 
 	//If draggable element is not fully dropped, return back to original position
-	$(".test").on("dropdeactivate", function(event, ui) {
-		$(this).children().removeAttr("style");
-		ui.draggable.css("left", 0);
-		ui.draggable.css("top", 0);
-	});
+	// $(document).on("dropdeactivate", ".ui-droppable",function(event, ui) {
+	// 	//$(this).children().removeAttr("style");
+	// 	ui.draggable.css("left", 0);
+	// 	ui.draggable.css("top", 0);
+	// });
 
 	$("#startStream").on("click", function() {
 		var streamer = $("#streamer").val();
@@ -59,10 +87,17 @@ $(document).ready(function() {
 
 
 			var vid_container = $("<div>");
-			vid_container.addClass("col-lg-6");
+			vid_container.addClass("col-lg-6 highlight");
 			//vid_container.attr("id", "vid" + vidNum);
 			vid_container.appendTo(".player");
-
+			vid_container.droppable({
+				addClasses: true,
+				accept: ".vid",
+				classes: {
+				"ui-droppable-active": "highlight1"
+				}
+			});
+			vid_container.droppable("disable");
 			vidNum++;
 			var vidEmbed = $("<div>");
 			vidEmbed.attr("id", streamName + vidNum);
@@ -85,19 +120,20 @@ $(document).ready(function() {
 			// Create interactive Iframe Embed
 			var player = new Twitch.Player(streamName + vidNum, options);
 			
-			vidEmbed.draggable({
+			$(".vid").draggable({
 				addClasses: true,
-				opacity: 0.50,
-			//	revert: "invalid",
-			//	revertDuration: 100,
+			//	opacity: 0.50,
+				revert: "invalid",
+				revertDuration: 100,
 				handle: "img",
-			//	iframeFix: true,
+				appendTo: "body",
 				helper: function() {
 
 					// Get current size of embed video
 					var width = vid_container.children().innerWidth();
 					var height = vid_container.children().innerHeight();
-					
+					console.log(width);
+					console.log(height);
 					// Make copy of embed element and its container
 					var clone = vid_container.clone();
 					
@@ -106,9 +142,11 @@ $(document).ready(function() {
 					clone.children().css("width", width);
 					clone.children().css("height", height);
 					clone.children().css("background-color", "grey");
-
+					//clone.css({"display","none"});
 					return clone;
-				}
+				},
+				containment: "parent",
+				scrollSpeed: 10
 			});
 		});
 
