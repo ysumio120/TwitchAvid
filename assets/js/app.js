@@ -1,11 +1,11 @@
 $(document).ready(function() {
 	var vidNum = 0;
-	var test1 = $("<div>").addClass("col-lg-6 highlight");
+	var test1 = $("<div>").addClass("col-lg-6");
 	test1.appendTo(".player");
 	$("<div>").addClass("temp").appendTo(test1);
 	
 	//TEST
-	var test2 = $("<div>").addClass("col-lg-6 highlight");
+	var test2 = $("<div>").addClass("col-lg-6");
 	test2.appendTo(".player");
 	$("<div>").addClass("temp").appendTo(test2);
 	
@@ -14,14 +14,14 @@ $(document).ready(function() {
 		addClasses: true,
 		accept: ".vid",
 		classes: {
-			"ui-droppable-active": "highlight1"
+			"ui-droppable-active": "highlight"
 		}
 	});
 	$(test2).droppable({
 		addClasses: true,
 		accept: ".vid",
 		classes: {
-			"ui-droppable-active": "highlight1"
+			"ui-droppable-active": "highlight"
 		}
 	});
 
@@ -87,14 +87,14 @@ $(document).ready(function() {
 
 
 			var vid_container = $("<div>");
-			vid_container.addClass("col-lg-6 highlight");
+			vid_container.addClass("col-lg-6");
 			//vid_container.attr("id", "vid" + vidNum);
 			vid_container.appendTo(".player");
 			vid_container.droppable({
 				addClasses: true,
 				accept: ".vid",
 				classes: {
-				"ui-droppable-active": "highlight1"
+				"ui-droppable-active": "highlight"
 				}
 			});
 			vid_container.droppable("disable");

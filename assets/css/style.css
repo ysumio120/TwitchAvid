@@ -40,6 +40,10 @@
 	visibility: hidden;
 }
 
+.ui-draggable {
+	border: 2px dashed transparent;
+}
+
 .ui-droppable-disabled {
 	visibility: visible;
 }
@@ -49,7 +53,7 @@
 	visibility: visible;
 }
 
-.highlight div{
+.ui-droppable-active div{
 	border: 2px dashed black;
 	opacity: 0.3;
 }
