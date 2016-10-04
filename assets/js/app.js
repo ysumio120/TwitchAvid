@@ -13,16 +13,16 @@ $(document).ready(function() {
 	$(test1).droppable({
 		addClasses: true,
 		accept: ".vid",
-		classes: {
-			"ui-droppable-active": "highlight"
-		}
+		// classes: {
+		// 	"ui-droppable-active": "highlight"
+		// }
 	});
 	$(test2).droppable({
 		addClasses: true,
 		accept: ".vid",
-		classes: {
-			"ui-droppable-active": "highlight"
-		}
+		// classes: {
+		// 	"ui-droppable-active": "highlight"
+		// }
 	});
 
 	/* On success drop, 
@@ -93,9 +93,9 @@ $(document).ready(function() {
 			vid_container.droppable({
 				addClasses: true,
 				accept: ".vid",
-				classes: {
-				"ui-droppable-active": "highlight"
-				}
+				// classes: {
+				// "ui-droppable-active": "highlight"
+				// }
 			});
 			vid_container.droppable("disable");
 			vidNum++;
@@ -125,17 +125,18 @@ $(document).ready(function() {
 			//	opacity: 0.50,
 				revert: "invalid",
 				revertDuration: 100,
+				scroll: false,
 				handle: "img",
 				appendTo: "body",
 				helper: function() {
 
 					// Get current size of embed video
-					var width = vid_container.children().innerWidth();
-					var height = vid_container.children().innerHeight();
+					var width = $(this).innerWidth();
+					var height = $(this).innerHeight();
 					console.log(width);
 					console.log(height);
 					// Make copy of embed element and its container
-					var clone = vid_container.clone();
+					var clone = $(this).parent().clone();
 					
 					// Create 'shadow' of element with same dimensions
 					clone.children().empty();
