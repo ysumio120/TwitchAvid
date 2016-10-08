@@ -17,7 +17,6 @@
 	position: absolute;
 	width: 100%;
 	height: 100%;
-/*	z-index: 0;*/
 }
 
 .vid img {
@@ -33,11 +32,6 @@
 .vid:hover img {
 	display: block;
 }
-
-/*.vid:hover {
-	border: 5px solid red;
-}
-*/
 
 .ui-droppable {
 	padding-top: 15px;
@@ -69,7 +63,14 @@
 	opacity: 1.0;
 }
 
-/*.ui-droppable div {
-	border: 2px dashed black;
-	//opacity: 0.3;
-}*/
+.deletable {
+	visibility: visible;
+	border: 2px solid red;
+}
+
+.vid .glyphicon-remove {
+	display: none;
+}
+.glyphicon-remove:hover {
+	color: white;
+}

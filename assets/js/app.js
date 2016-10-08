@@ -17,16 +17,11 @@ $(document).ready(function() {
 	$(test1).droppable({
 		addClasses: true,
 		accept: ".vid",
-		// classes: {
-		// 	"ui-droppable-active": "highlight"
-		// }
 	});
+	
 	$(test2).droppable({
 		addClasses: true,
 		accept: ".vid",
-		// classes: {
-		// 	"ui-droppable-active": "highlight"
-		// }
 	});
 
 	vidArr.push(test1);
@@ -44,17 +39,11 @@ $(document).ready(function() {
  *  Remove border styling
  */
 $(document).on("drop", ".ui-droppable" ,function(event, ui) {
-	//$(this).removeAttr("style");
-	//$(this).removeClass("test");
 	$(this).empty();
 	var oldParent = ui.draggable.parent();
 	var newTemp = $("<div>");
 	newTemp.addClass("temp");
 	oldParent.droppable("enable");
-	// oldParent.droppable({
-	// 	addClasses: true,
-	// 	accept: ".vid"
-	// });
 
 	newTemp.appendTo(oldParent);
 	ui.draggable.appendTo(this);
@@ -63,13 +52,6 @@ $(document).on("drop", ".ui-droppable" ,function(event, ui) {
 
 	ui.draggable.parent().droppable("disable");
 });
-
-//If draggable element is not fully dropped, return back to original position
-// $(document).on("dropdeactivate", ".ui-droppable",function(event, ui) {
-// 	//$(this).children().removeAttr("style");
-// 	ui.draggable.css("left", 0);
-// 	ui.draggable.css("top", 0);
-// });
 
 $("#startStream").on("click", function() {
 	var streamer = $("#streamer").val();
@@ -121,6 +103,12 @@ $("#startStream").on("click", function() {
 		vidEmbed.addClass("vid");
 		vidEmbed.data("name", streamName);
 		vidEmbed.appendTo(vid_container);
+
+		var deleteVid = $("<span></span>");
+		deleteVid.addClass("glyphicon glyphicon-remove");
+		deleteVid.attr("aria-hidden", true);
+		deleteVid.appendTo(vidEmbed);
+		deleteVid.css({"font-size": "200%", "right": 0, "position": "absolute", "z-index": 1});
 
 		//Move cursor img for draggable handle
 		var move = $("<img>");
@@ -200,6 +188,34 @@ $("#edit").on("click", function() {
 	// for(var i = 0; i < vidArr.length; i++) {
 	// 	if(vidArr.children().attr("id") == streamer)
 	// }
+});
+
+$("#delete").on("click", function() {
+	$(".ui-droppable").addClass("deletable");
+	$(".vid iframe").css("opacity", 0.3);
+});
+
+$("#cancel").on("click", function() {
+	$(".ui-droppable").removeClass("deletable");
+	$(".vid iframe").css("opacity", "");
+});
+
+$(document).on("click", ".glyphicon-remove", function() {
+	console.log("CLICKED");
+	var vid = $(this).parent();
+	var container = vid.parent();
+	console.log(vid);
+	var streamer = vid.attr("id");
+	for(var i = 0; i < currentStreamers.length; i++) {
+		if(streamer == currentStreamers[i]) {
+			currentStreamers.splice(i, 1);
+		}
+	}
+	console.log(currentStreamers);
+	vid.remove();
+	var newTemp = $("<div>");
+	newTemp.addClass("temp");
+	newTemp.appendTo(container);
 });
 
 function checkDupeStreamers(streamer) {
