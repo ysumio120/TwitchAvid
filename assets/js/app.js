@@ -16,12 +16,12 @@ $(document).ready(function() {
 	//Activate droppable and accept draggables
 	$(test1).droppable({
 		addClasses: true,
-		accept: ".vid",
+		accept: ".vid, .chat",
 	});
 	
 	$(test2).droppable({
 		addClasses: true,
-		accept: ".vid",
+		accept: ".vid, .chat",
 	});
 
 	vidArr.push(test1);
@@ -91,7 +91,7 @@ $("#startStream").on("click", function() {
 		vid_container.appendTo(".player");
 		vid_container.droppable({
 			addClasses: true,
-			accept: ".vid",
+			accept: ".vid, .chat",
 			// classes: {
 			// "ui-droppable-active": "highlight"
 			// }
@@ -104,16 +104,21 @@ $("#startStream").on("click", function() {
 		vidEmbed.data("name", streamName);
 		vidEmbed.appendTo(vid_container);
 
-		var deleteVid = $("<span></span>");
-		deleteVid.addClass("glyphicon glyphicon-remove");
+		var deleteVid = $("<i></i>");
+		deleteVid.addClass("fa fa-times");
 		deleteVid.attr("aria-hidden", true);
 		deleteVid.appendTo(vidEmbed);
-		deleteVid.css({"font-size": "200%", "right": 0, "position": "absolute", "z-index": 1});
 
 		//Move cursor img for draggable handle
-		var move = $("<img>");
-		move.attr("src", "assets/images/move_cursor.png");
+		// var move = $("<img>");
+		// move.attr("src", "assets/images/move_cursor.png");
+		// move.appendTo(".vid");
+
+		var move = $("<i></i>");
+		move.attr("aria-hidden", true);
+		move.addClass("fa fa-arrows");
 		move.appendTo(".vid");
+
 
 		// Configure options for iframe embed
 		var options = {
@@ -125,13 +130,13 @@ $("#startStream").on("click", function() {
 		// Create interactive Iframe Embed
 		var player = new Twitch.Player(streamName, options);
 		
-		$(".vid").draggable({
+		vidEmbed.draggable({
 			addClasses: true,
 		//	opacity: 0.50,
 			revert: "invalid",
 			revertDuration: 100,
 			scroll: false,
-			handle: "img",
+			handle: ".fa-arrows",
 			appendTo: "body",
 			helper: function() {
 
@@ -164,20 +169,79 @@ $("#startChat").on("click", function() {
 	var streamer = $("#chat").val();
 	var query = "http://www.twitch.tv/" + streamer + "/chat";
 
+	var chat_container = $("<div>");
+	//vidArr.push(vid_container);
+	chat_container.addClass("col-lg-6");
+	//vid_container.attr("id", "vid" + vidNum);
+	chat_container.appendTo(".player");
+	chat_container.droppable({
+		addClasses: true,
+		accept: ".vid, .chat",
+		// classes: {
+		// "ui-droppable-active": "highlight"
+		// }
+	});
+	chat_container.droppable("disable");
+
+	chatEmbed = $("<div></div>");
+	chatEmbed.addClass("chat");
+	chatEmbed.appendTo(chat_container);
+
+	var deleteChat = $("<i></i>");
+	deleteChat.addClass("fa fa-times");
+	deleteChat.attr("aria-hidden", true);
+	deleteChat.appendTo(chatEmbed);
+
+	//Move cursor img for draggable handle
+	// var move = $("<img>");
+	// move.attr("src", "assets/images/move_cursor.png");
+	// move.appendTo(".vid");
+
+	var move = $("<i></i>");
+	move.attr("aria-hidden", true);
+	move.addClass("fa fa-arrows");
+	move.appendTo(".chat");	
+
 	var chat = $("<iframe></iframe>");
 	chat.attr("frameborder", "0");
 	chat.attr("scrolling", "no");
-	chat.attr("id", "chat-embed");
-	chat.attr("height", 400);
+	chat.data("streamer", streamer);
 	chat.attr("src", query);
 
-	var chatEmbed = $("<div>");
-	chatEmbed.attr("id", "chat" + vidNum);
-	chatEmbed.addClass("col-lg-6");
 	chat.appendTo(chatEmbed);
 
+	chatEmbed.draggable({
+			addClasses: true,
+		//	opacity: 0.50,
+			revert: "invalid",
+			revertDuration: 100,
+			scroll: false,
+			handle: ".fa-arrows",
+			appendTo: "body",
+			helper: function() {
+
+				// Get current size of embed video
+				var width = $(this).innerWidth();
+				var height = $(this).innerHeight();
+				console.log(width);
+				console.log(height);
+				// Make copy of embed element and its container
+				var clone = $(this).parent().clone();
+				
+				// Create 'shadow' of element with same dimensions
+				clone.children().empty();
+				clone.children().css("width", width);
+				clone.children().css("height", height);
+				clone.children().css("background-color", "grey");
+				//clone.css({"display","none"});
+				return clone;
+			},
+			containment: "parent",
+			scrollSpeed: 10
+		});
+
 	console.log(chatEmbed);
-	chatEmbed.appendTo(".player");
+	chat_container.appendTo(".player");
 });
 
 $("#edit").on("click", function() {
@@ -193,17 +257,20 @@ $("#edit").on("click", function() {
 $("#delete").on("click", function() {
 	$(".ui-droppable").addClass("deletable");
 	$(".vid iframe").css("opacity", 0.3);
+	$(".glyphicon-remove").css("display", "block");
 });
 
 $("#cancel").on("click", function() {
 	$(".ui-droppable").removeClass("deletable");
 	$(".vid iframe").css("opacity", "");
+	$(".glyphicon-remove").css("display", "none");
 });
 
-$(document).on("click", ".glyphicon-remove", function() {
+$(document).on("click", ".fa-times", function() {
 	console.log("CLICKED");
 	var vid = $(this).parent();
 	var container = vid.parent();
+	container.droppable("enable");
 	console.log(vid);
 	var streamer = vid.attr("id");
 	for(var i = 0; i < currentStreamers.length; i++) {
