@@ -1,6 +1,11 @@
 /*body {
 	background-color: black;
 }*/
+.tabs {
+	width: 80%;
+	margin-top: 30px;
+	margin-bottom: 20px;
+}
 
 .vid, 
 .chat,
@@ -105,4 +110,24 @@
 .vid .fa-arrows:hover {
 	color: #b2a0d2;
 	cursor: pointer;
+}
+
+.nav-tabs {
+	position: relative;
+}
+
+.nav-tabs > li.active > a,
+.nav-tabs > li.active > a:hover {
+	background-color: #6441a4;
+	color: white;
+}
+
+.nav > li > a:hover {
+	background-color: #b2a0d2;
+}
+
+.nav > li > a,
+.nav > li > a > input {
+	border: 1px solid #ddd;
+	color: black;
 }

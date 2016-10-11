@@ -1,9 +1,9 @@
 var vidArr = [];
 var currentStreamers = [];
 var vidNum = 0;
+var currentTab = $(".home");
 
 $(document).ready(function() {
-	
 	var test1 = $("<div>").addClass("col-lg-6");
 	test1.appendTo(".player");
 	$("<div>").addClass("temp").appendTo(test1);
@@ -38,7 +38,7 @@ $(document).ready(function() {
  * 	Remove temporary div placeholder
  *  Remove border styling
  */
-$(document).on("drop", ".ui-droppable" ,function(event, ui) {
+$(document).on("drop", ".ui-droppable", function(event, ui) {
 	$(this).empty();
 	var oldParent = ui.draggable.parent();
 	var newTemp = $("<div>");
@@ -167,6 +167,11 @@ $("#startStream").on("click", function() {
 
 $("#startChat").on("click", function() {
 	var streamer = $("#chat").val();
+
+	if(!streamer) {
+		return;
+	}
+
 	var query = "http://www.twitch.tv/" + streamer + "/chat";
 
 	var chat_container = $("<div>");
@@ -283,6 +288,57 @@ $(document).on("click", ".fa-times", function() {
 	var newTemp = $("<div>");
 	newTemp.addClass("temp");
 	newTemp.appendTo(container);
+});
+
+// Toggle tabs when clicked and display content
+// Clicking the 'plus' tab will create a new tab
+$(document).on("click", ".nav-tabs li", function() {
+	currentTab.removeClass("active");
+	var selectedTab = $(this);
+	
+
+	if(selectedTab.hasClass("addTab")) {
+		var newTab = $("<li></li>");
+		newTab.attr("role", "presentation");
+		var a = $("<a></a>").attr("href", "#");
+		var input = $("<input>").attr("type", "text");
+		input.appendTo(a);
+		a.appendTo(newTab);
+		newTab.insertBefore(".addTab");
+		input.focus();
+		selectedTab = newTab;
+	}
+	
+	selectedTab.addClass("active");
+	currentTab = selectedTab;
+});
+
+// $(document).on("click", "a input", function() {
+// 	$(this).parent().css("color", "black");
+// 	$(this).focus();
+
+// });
+
+// Assign name to tab with text from user after pressing 'enter'
+$(document).on("keypress", "a input", function(event) {
+	if(!event)
+		e = window.event;
+	var keyCode = event.keyCode || event.which;
+	//console.log(keyCode);
+	if(keyCode === 13) {
+		var title = $(this).val();
+		console.log(title);
+		var a = $(this).parent();
+		$(this).remove();
+		a.text(title);
+	}
+});
+
+// Allow sortable tabs by click-and-drag
+$(".nav-tabs").sortable({
+	axis: "x",
+	containment: "parent",
+	items: "> li:not(.addTab)"
 });
 
 function checkDupeStreamers(streamer) {
