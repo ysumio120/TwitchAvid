@@ -30,6 +30,7 @@ $(document).ready(function() {
 	//$(test1).remove();
 	console.log(vidArr);
 
+	//$(".tabs").tabs();
 });
 
 /* On success drop, 
@@ -331,11 +332,18 @@ $(document).on("keypress", "a input", function(event) {
 		var a = $(this).parent();
 		$(this).remove();
 		a.text(title);
+		var contentWrapper = $("<div></div>");
+		contentWrapper.attr("id", title);
+		contentWrapper.text(title);
+		contentWrapper.appendTo(".player");
+		a.attr("href", "#" + title);
+		//$(".tabs").tabs("refresh");
 	}
 });
 
 // Allow sortable tabs by click-and-drag
 $(".nav-tabs").sortable({
+	delay: 200,
 	axis: "x",
 	containment: "parent",
 	items: "> li:not(.addTab)"
