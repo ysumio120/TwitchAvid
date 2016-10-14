@@ -131,3 +131,11 @@
 	border: 1px solid #ddd;
 	color: black;
 }
+
+.panel {
+	display: none;
+}
+
+.panel-active {
+	display: block;
+}

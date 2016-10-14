@@ -308,10 +308,19 @@ $(document).on("click", ".nav-tabs li", function() {
 		newTab.insertBefore(".addTab");
 		input.focus();
 		selectedTab = newTab;
+		selectedTab.addClass("active");
+		currentTab = selectedTab;
+		return;
 	}
 	
 	selectedTab.addClass("active");
 	currentTab = selectedTab;
+	var correspondingContent = currentTab.children().attr("href");
+	if(correspondingContent != "#") {
+		console.log(correspondingContent);
+		$(".player").find(".panel.panel-active").removeClass("panel-active");
+		$(correspondingContent).addClass("panel-active");
+	}
 });
 
 // $(document).on("click", "a input", function() {
@@ -328,15 +337,19 @@ $(document).on("keypress", "a input", function(event) {
 	//console.log(keyCode);
 	if(keyCode === 13) {
 		var title = $(this).val();
-		console.log(title);
+		//console.log(title);
 		var a = $(this).parent();
 		$(this).remove();
-		a.text(title);
+		a.text(title); // test
 		var contentWrapper = $("<div></div>");
+		contentWrapper.addClass("panel");
 		contentWrapper.attr("id", title);
 		contentWrapper.text(title);
 		contentWrapper.appendTo(".player");
 		a.attr("href", "#" + title);
+		console.log($(".player").find(".panel.panel-active").attr("id"));
+		$(".player").find(".panel.panel-active").removeClass("panel-active");
+		contentWrapper.addClass("panel-active");
 		//$(".tabs").tabs("refresh");
 	}
 });
