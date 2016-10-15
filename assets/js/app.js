@@ -89,7 +89,7 @@ $("#startStream").on("click", function() {
 		vidArr.push(vid_container);
 		vid_container.addClass("col-lg-6");
 		//vid_container.attr("id", "vid" + vidNum);
-		vid_container.appendTo(".player");
+		vid_container.appendTo("#" + currentTab.data("tab"));
 		vid_container.droppable({
 			addClasses: true,
 			accept: ".vid, .chat",
@@ -247,7 +247,7 @@ $("#startChat").on("click", function() {
 		});
 
 	console.log(chatEmbed);
-	chat_container.appendTo(".player");
+	chat_container.appendTo("#" + currentTab.data("tab"));
 });
 
 $("#edit").on("click", function() {
@@ -315,11 +315,11 @@ $(document).on("click", ".nav-tabs li", function() {
 	
 	selectedTab.addClass("active");
 	currentTab = selectedTab;
-	var correspondingContent = currentTab.children().attr("href");
-	if(correspondingContent != "#") {
+	var correspondingContent = currentTab.data("tab");
+	if(correspondingContent) {
 		console.log(correspondingContent);
 		$(".player").find(".panel.panel-active").removeClass("panel-active");
-		$(correspondingContent).addClass("panel-active");
+		$("#" + correspondingContent).addClass("panel-active");
 	}
 });
 
@@ -337,16 +337,17 @@ $(document).on("keypress", "a input", function(event) {
 	//console.log(keyCode);
 	if(keyCode === 13) {
 		var title = $(this).val();
+		currentTab.data("tab", title);
 		//console.log(title);
 		var a = $(this).parent();
 		$(this).remove();
 		a.text(title); // test
 		var contentWrapper = $("<div></div>");
-		contentWrapper.addClass("panel");
+		contentWrapper.addClass("row panel");
 		contentWrapper.attr("id", title);
-		contentWrapper.text(title);
+		//contentWrapper.text(title);
 		contentWrapper.appendTo(".player");
-		a.attr("href", "#" + title);
+		//a.attr("href", "#");
 		console.log($(".player").find(".panel.panel-active").attr("id"));
 		$(".player").find(".panel.panel-active").removeClass("panel-active");
 		contentWrapper.addClass("panel-active");
