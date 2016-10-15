@@ -2,6 +2,7 @@ var vidArr = [];
 var currentStreamers = [];
 var vidNum = 0;
 var currentTab = $(".home").data("tab", "Home");
+var timeout = null;
 
 $(document).ready(function() {
 
@@ -53,6 +54,12 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 	ui.draggable.css("top", 0);
 
 	ui.draggable.parent().droppable("disable");
+});
+
+
+$("#streamer").on("keypress", function() {
+
+
 });
 
 $("#startStream").on("click", function() {
@@ -208,10 +215,6 @@ function twitchRequest(query) {
 
 	return promise;
 
-}
-
-function initialStatus() {
-	
 }
 
 function findStream(streamer) {
