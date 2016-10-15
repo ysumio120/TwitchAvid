@@ -5,7 +5,9 @@
 
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	
+
+	<!-- Google Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">
 	<!-- Stylesheets -->
 	<!-- <link rel="stylesheet" type="text/css" href="assets/css/reset.css"> -->
 	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
@@ -25,13 +27,12 @@
 </head>
 <body>
 	<div class="container">
-		<div class="row">
+		<div class="row search">
 			<div class="col-lg-6">
-				<label for="streamer">Enter Stream</label>
-				<br>
-				<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
+				<label for="streamer">Enter Stream: </label>
+				
+				<input type="text" name="Stream" placeholder=" Stream" id="streamer"/>
 				<img src="">
-				<div class="status"></div>
 				<!-- <img src="assets/images/loading.gif"> -->
 				<button id="startStream">Watch</button>
 				<button class="" id="edit">Edit</button>
@@ -43,8 +44,8 @@
 			<button class="pull-right" id="delete">Delete</button>
 			<br> -->
 			<div class="col-lg-6">
-				<label for="streamer">Enter Chat</label><br>
-				<input type="text" name="Chat" placeholder="Chat" id="chat"/>
+				<label for="streamer">Enter Chat: </label>
+				<input type="text" name="Chat" placeholder=" Chat" id="chat"/>
 				<button id="startChat">Chat</button>
 				<div class="error"><span></span></div>
 			</div>
