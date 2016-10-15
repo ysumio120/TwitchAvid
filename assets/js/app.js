@@ -1,9 +1,10 @@
 var vidArr = [];
 var currentStreamers = [];
 var vidNum = 0;
-var currentTab = $(".home");
+var currentTab = $(".home").data("tab", "Home");
 
 $(document).ready(function() {
+
 	var test1 = $("<div>").addClass("col-lg-6");
 	test1.appendTo(".player");
 	$("<div>").addClass("temp").appendTo(test1);
@@ -56,198 +57,14 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 
 $("#startStream").on("click", function() {
 	var streamer = $("#streamer").val();
-	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
-
-	$.ajax({
-		url: query, 
-		method: 'GET', 
-		headers: {
-			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
-		},
-		error : function(jqXHR, textStatus, errorThrown) { 
-			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
-   				console.log('There was a 404 error.'); 
-			}
-		}
-	}).done(function(response) {
-		console.log(response);
-		if(!response.stream) {
-			console.log("NO RESPONSE");
-			return;
-		}
-		var channelAPI = response._links.self;
-		console.log(channelAPI);
-		var streamName = response.stream.channel.name;
-		console.log(streamName);
-		
-		if(!checkDupeStreamers(streamName)) {
-			currentStreamers.push(streamName);
-		}
-		else return;
-
-		var vid_container = $("<div>");
-		vidArr.push(vid_container);
-		vid_container.addClass("col-lg-6");
-		//vid_container.attr("id", "vid" + vidNum);
-		vid_container.appendTo("#" + currentTab.data("tab"));
-		vid_container.droppable({
-			addClasses: true,
-			accept: ".vid, .chat",
-			// classes: {
-			// "ui-droppable-active": "highlight"
-			// }
-		});
-		vid_container.droppable("disable");
-		vidNum++;
-		var vidEmbed = $("<div>");
-		vidEmbed.attr("id", streamName);
-		vidEmbed.addClass("vid");
-		vidEmbed.data("name", streamName);
-		vidEmbed.appendTo(vid_container);
-
-		var deleteVid = $("<i></i>");
-		deleteVid.addClass("fa fa-times");
-		deleteVid.attr("aria-hidden", true);
-		deleteVid.appendTo(vidEmbed);
-
-		//Move cursor img for draggable handle
-		// var move = $("<img>");
-		// move.attr("src", "assets/images/move_cursor.png");
-		// move.appendTo(".vid");
-
-		var move = $("<i></i>");
-		move.attr("aria-hidden", true);
-		move.addClass("fa fa-arrows");
-		move.appendTo(".vid");
-
-
-		// Configure options for iframe embed
-		var options = {
-		//	width: 720,
-		//	height: 400,
-			channel: streamName
-		};
-
-		// Create interactive Iframe Embed
-		var player = new Twitch.Player(streamName, options);
-		
-		vidEmbed.draggable({
-			addClasses: true,
-		//	opacity: 0.50,
-			revert: "invalid",
-			revertDuration: 100,
-			scroll: false,
-			handle: ".fa-arrows",
-			appendTo: "body",
-			helper: function() {
-
-				// Get current size of embed video
-				var width = $(this).innerWidth();
-				var height = $(this).innerHeight();
-				console.log(width);
-				console.log(height);
-				// Make copy of embed element and its container
-				var clone = $(this).parent().clone();
-				
-				// Create 'shadow' of element with same dimensions
-				clone.children().empty();
-				clone.children().css("width", width);
-				clone.children().css("height", height);
-				clone.children().css("background-color", "grey");
-				//clone.css({"display","none"});
-				return clone;
-			},
-			containment: "parent",
-			scrollSpeed: 10
-		});
-	});
-
-	$("#streamer").val("");
-	return false;
+	
+	findStream(streamer);
 });
 
 $("#startChat").on("click", function() {
 	var streamer = $("#chat").val();
 
-	if(!streamer) {
-		return;
-	}
-
-	var query = "http://www.twitch.tv/" + streamer + "/chat";
-
-	var chat_container = $("<div>");
-	//vidArr.push(vid_container);
-	chat_container.addClass("col-lg-6");
-	//vid_container.attr("id", "vid" + vidNum);
-	chat_container.appendTo(".player");
-	chat_container.droppable({
-		addClasses: true,
-		accept: ".vid, .chat",
-		// classes: {
-		// "ui-droppable-active": "highlight"
-		// }
-	});
-	chat_container.droppable("disable");
-
-	chatEmbed = $("<div></div>");
-	chatEmbed.addClass("chat");
-	chatEmbed.appendTo(chat_container);
-
-	var deleteChat = $("<i></i>");
-	deleteChat.addClass("fa fa-times");
-	deleteChat.attr("aria-hidden", true);
-	deleteChat.appendTo(chatEmbed);
-
-	//Move cursor img for draggable handle
-	// var move = $("<img>");
-	// move.attr("src", "assets/images/move_cursor.png");
-	// move.appendTo(".vid");
-
-	var move = $("<i></i>");
-	move.attr("aria-hidden", true);
-	move.addClass("fa fa-arrows");
-	move.appendTo(".chat");	
-
-	var chat = $("<iframe></iframe>");
-	chat.attr("frameborder", "0");
-	chat.attr("scrolling", "no");
-	chat.data("streamer", streamer);
-	chat.attr("src", query);
-
-	chat.appendTo(chatEmbed);
-
-	chatEmbed.draggable({
-			addClasses: true,
-		//	opacity: 0.50,
-			revert: "invalid",
-			revertDuration: 100,
-			scroll: false,
-			handle: ".fa-arrows",
-			appendTo: "body",
-			helper: function() {
-
-				// Get current size of embed video
-				var width = $(this).innerWidth();
-				var height = $(this).innerHeight();
-				console.log(width);
-				console.log(height);
-				// Make copy of embed element and its container
-				var clone = $(this).parent().clone();
-				
-				// Create 'shadow' of element with same dimensions
-				clone.children().empty();
-				clone.children().css("width", width);
-				clone.children().css("height", height);
-				clone.children().css("background-color", "grey");
-				//clone.css({"display","none"});
-				return clone;
-			},
-			containment: "parent",
-			scrollSpeed: 10
-		});
-
-	console.log(chatEmbed);
-	chat_container.appendTo("#" + currentTab.data("tab"));
+	findChat(streamer);
 });
 
 $("#edit").on("click", function() {
@@ -372,4 +189,242 @@ function checkDupeStreamers(streamer) {
 	}
 
 	return false;
+}
+
+function twitchRequest(query) {
+	var promise = $.ajax({
+		url: query, 
+		method: 'GET', 
+		headers: {
+			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
+		},
+		error : function(jqXHR, textStatus, errorThrown) { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+   				console.log('There was a 404 error.'); 
+   				$(".error span").text("Error: Could not load");
+			}
+		}
+	});
+
+	return promise;
+
+}
+
+function initialStatus() {
+	
+}
+
+function findStream(streamer) {
+	//var streamer = $("#streamer").val();
+	$(".error span").text("Error");
+
+	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
+
+	// $.ajax({
+	// 	url: query, 
+	// 	method: 'GET', 
+	// 	headers: {
+	// 		"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
+	// 	},
+	// 	error : function(jqXHR, textStatus, errorThrown) { 
+	// 		if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+ //   				console.log('There was a 404 error.'); 
+	// 		}
+	// 	}
+	// })
+	twitchRequest(query).done(function(response) {
+		console.log(response);
+		if(!response.stream) {
+			console.log("NO RESPONSE");
+			return;
+		}
+		var channelAPI = response._links.self;
+		console.log(channelAPI);
+		var streamName = response.stream.channel.name;
+		console.log(streamName);
+		
+		if(!checkDupeStreamers(streamName)) {
+			//currentStreamers.push(streamName);
+		}
+		else return;
+
+		var vid_container = $("<div>");
+		vidArr.push(vid_container);
+		vid_container.addClass("col-lg-6");
+		//vid_container.attr("id", "vid" + vidNum);
+		vid_container.appendTo("#" + currentTab.data("tab"));
+		vid_container.droppable({
+			addClasses: true,
+			accept: ".vid, .chat",
+			// classes: {
+			// "ui-droppable-active": "highlight"
+			// }
+		});
+		vid_container.droppable("disable");
+		vidNum++;
+		var vidEmbed = $("<div>");
+		vidEmbed.attr("id", streamName);
+		vidEmbed.addClass("vid");
+		vidEmbed.data("name", streamName);
+		vidEmbed.appendTo(vid_container);
+
+		var deleteVid = $("<i></i>");
+		deleteVid.addClass("fa fa-times");
+		deleteVid.attr("aria-hidden", true);
+		deleteVid.appendTo(vidEmbed);
+
+		//Move cursor img for draggable handle
+		// var move = $("<img>");
+		// move.attr("src", "assets/images/move_cursor.png");
+		// move.appendTo(".vid");
+
+		var move = $("<i></i>");
+		move.attr("aria-hidden", true);
+		move.addClass("fa fa-arrows");
+		move.appendTo(".vid");
+
+
+		// Configure options for iframe embed
+		var options = {
+		//	width: 720,
+		//	height: 400,
+			channel: streamName
+		};
+
+		// Create interactive Iframe Embed
+		var player = new Twitch.Player(streamName, options);
+		
+		vidEmbed.draggable({
+			addClasses: true,
+		//	opacity: 0.50,
+			revert: "invalid",
+			revertDuration: 100,
+			scroll: false,
+			handle: ".fa-arrows",
+			appendTo: "body",
+			helper: function() {
+
+				// Get current size of embed video
+				var width = $(this).innerWidth();
+				var height = $(this).innerHeight();
+				console.log(width);
+				console.log(height);
+				// Make copy of embed element and its container
+				var clone = $(this).parent().clone();
+				
+				// Create 'shadow' of element with same dimensions
+				clone.children().empty();
+				clone.children().css("width", width);
+				clone.children().css("height", height);
+				clone.children().css("background-color", "grey");
+				//clone.css({"display","none"});
+				return clone;
+			},
+			containment: "parent",
+			scrollSpeed: 10
+		});
+
+
+		if($("input[name='chat']").prop("checked")) {
+			console.log("Chat Checked");
+			findChat(streamer);
+		}
+	});
+
+	$("#streamer").val("");
+	return false;	
+}
+
+function findChat(streamer) {
+	//var streamer = $("#chat").val();
+	$(".error span").text("Error");
+
+	if(!streamer) {
+		return;
+	}
+	var query2 = "https://api.twitch.tv/kraken/chat/" + streamer;
+	
+	twitchRequest(query2).done(function(request) {
+		console.log(request);
+
+		var query = "http://www.twitch.tv/" + streamer + "/chat";
+
+		var chat_container = $("<div>");
+		//vidArr.push(vid_container);
+		chat_container.addClass("col-lg-6");
+		//vid_container.attr("id", "vid" + vidNum);
+		chat_container.appendTo(".player");
+		chat_container.droppable({
+			addClasses: true,
+			accept: ".vid, .chat",
+			// classes: {
+			// "ui-droppable-active": "highlight"
+			// }
+		});
+		chat_container.droppable("disable");
+
+		chatEmbed = $("<div></div>");
+		chatEmbed.addClass("chat");
+		chatEmbed.appendTo(chat_container);
+
+		var deleteChat = $("<i></i>");
+		deleteChat.addClass("fa fa-times");
+		deleteChat.attr("aria-hidden", true);
+		deleteChat.appendTo(chatEmbed);
+
+		//Move cursor img for draggable handle
+		// var move = $("<img>");
+		// move.attr("src", "assets/images/move_cursor.png");
+		// move.appendTo(".vid");
+
+		var move = $("<i></i>");
+		move.attr("aria-hidden", true);
+		move.addClass("fa fa-arrows");
+		move.appendTo(".chat");	
+
+		var chat = $("<iframe></iframe>");
+		chat.attr("frameborder", "0");
+		chat.attr("scrolling", "no");
+		chat.data("streamer", streamer);
+		chat.attr("src", query);
+
+		chat.appendTo(chatEmbed);
+
+		chatEmbed.draggable({
+				addClasses: true,
+			//	opacity: 0.50,
+				revert: "invalid",
+				revertDuration: 100,
+				scroll: false,
+				handle: ".fa-arrows",
+				appendTo: "body",
+				helper: function() {
+
+					// Get current size of embed video
+					var width = $(this).innerWidth();
+					var height = $(this).innerHeight();
+					console.log(width);
+					console.log(height);
+					// Make copy of embed element and its container
+					var clone = $(this).parent().clone();
+					
+					// Create 'shadow' of element with same dimensions
+					clone.children().empty();
+					clone.children().css("width", width);
+					clone.children().css("height", height);
+					clone.children().css("background-color", "grey");
+					//clone.css({"display","none"});
+					return clone;
+				},
+				containment: "parent",
+				scrollSpeed: 10
+			});
+
+		console.log(chatEmbed);
+		chat_container.appendTo("#" + currentTab.data("tab"));	
+
+	});
+
+	$("#chat").val("");
+	return false;	
 }
