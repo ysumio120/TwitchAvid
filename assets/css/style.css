@@ -3,8 +3,8 @@ body {
 }
 .tabs {
 	width: 80%;
-	margin-top: 30px;
-	margin-bottom: 20px;
+	margin-top: 5px;
+	margin-bottom: 10px;
 }
 
 .vid, 
@@ -50,7 +50,7 @@ body {
 	position: absolute;
     z-index: 1;
     bottom: 22px;
-    left: 48%;
+    left: 49.5%;
     font-size: 150%;
 }
 
@@ -132,11 +132,12 @@ body {
 	color: black;
 }
 
-.panel {
+.content {
+	border: none;
 	display: none;
 }
 
-.panel-active {
+.content-active {
 	display: block;
 }
 
@@ -144,18 +145,34 @@ body {
 	color: red;
 }
 
-.status {
+/*.status {
 	display: inline-block;
 	border-radius: 50%;
 	background-color: red;
 	width: 20px;
 	height: 20px;
+}*/
+
+.loading,
+.status {
+	width: 24px;
+	display:none;
 }
 
-.green_status {
-	width:4%;
+.show-status {
+	display: inline-block;
+	width: 23px;
+	height: 23px;
 }
 
-.red_status {
-	
+.fa.fa-chevron-up,
+.fa.fa-chevron-down {
+	color: #8b8b8b;
+	font-size: 15px;
+	padding: 5px 5px;
+}
+
+.fa.fa-chevron-up:hover,
+.fa.fa-chevron-down:hover {
+	color: black;
 }

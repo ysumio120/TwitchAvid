@@ -26,16 +26,18 @@
 <body>
 	<div class="container">
 		<div class="row">
-			<div class="col-lg-6">
+			<div class="col-lg-6 search">
 				<label for="streamer">Enter Stream</label>
 				<br>
 				<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
 				<img src="">
 				<!-- <div class="status"></div> -->
-				<!-- <img src="assets/images/loading.gif"> -->
-				<img class="status green_status" src="assets/images/green_status.png">
+				<img class="loading" src="assets/images/loading.gif">
+				<img class="green status" src="assets/images/green.png">
+				<img class="red status" src="assets/images/red.png">
+				<span class="text-status"></span>
 				<button id="startStream">Watch</button>
-				<button class="" id="edit">Edit</button>
+				<!-- <button class="" id="edit">Edit</button> -->
 				<form action="">
  					<input type="checkbox" name="chat"> Include chat
 				</form>
@@ -43,25 +45,35 @@
 			<!-- <button class="pull-right" id="cancel">Cancel</button>
 			<button class="pull-right" id="delete">Delete</button>
 			<br> -->
-			<div class="col-lg-6">
+			<div class="col-lg-6 search">
 				<label for="streamer">Enter Chat</label><br>
 				<input type="text" name="Chat" placeholder="Chat" id="chat"/>
 				<button id="startChat">Chat</button>
 				<div class="error"><span></span></div>
 			</div>
-
+		<!-- 	<div class="col-lg-2">
+				<i class="fa fa-angle-up" aria-hidden="true"></i>
+			</div> -->
 		</div>
+	</div>
+	<!-- <div class="container">
+		<div class="row">
+			
+		</div>
+	</div> -->
+	<div class="container toggle">
+		<i class="fa fa-chevron-up pull-right" aria-hidden="true"></i>
 	</div>
 	<div class="container tabs">
 		<ul class="nav nav-tabs">
 			<li role="presentation" class="active home"><a href="#">Home</a></li>
-			<li role="presentation"><a href="#">Tab 1</a></li>
-			<li role="presentation"><a href="#">Tab 2</a></li>
+			<!-- <li role="presentation"><a href="#">Tab 1</a></li>
+			<li role="presentation"><a href="#">Tab 2</a></li> -->
 			<li role="presentation" class="addTab"><a href="#"><i class="fa fa-plus-square" aria-hidden="true"></i></a></li>
 		</ul>
 	</div>
 	<div class="container-fluid player">
-		<div class= "row panel panel-active" id="Home"></div>	
+		<div class= "row content content-active" id="Home"></div>	
 	</div>
 
 	<script type="text/javascript" src="assets/js/app.js"></script>

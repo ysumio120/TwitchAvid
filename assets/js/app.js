@@ -6,31 +6,31 @@ var timeout = null;
 
 $(document).ready(function() {
 
-	var test1 = $("<div>").addClass("col-lg-6");
-	test1.appendTo(".player");
-	$("<div>").addClass("temp").appendTo(test1);
+	// var test1 = $("<div>").addClass("col-lg-6");
+	// test1.appendTo(".player");
+	// $("<div>").addClass("temp").appendTo(test1);
 	
-	//TEST
-	var test2 = $("<div>").addClass("col-lg-6");
-	test2.appendTo(".player");
-	$("<div>").addClass("temp").appendTo(test2);
+	// //TEST
+	// var test2 = $("<div>").addClass("col-lg-6");
+	// test2.appendTo(".player");
+	// $("<div>").addClass("temp").appendTo(test2);
 	
-	//Activate droppable and accept draggables
-	$(test1).droppable({
-		addClasses: true,
-		accept: ".vid, .chat",
-	});
+	// //Activate droppable and accept draggables
+	// $(test1).droppable({
+	// 	addClasses: true,
+	// 	accept: ".vid, .chat",
+	// });
 	
-	$(test2).droppable({
-		addClasses: true,
-		accept: ".vid, .chat",
-	});
+	// $(test2).droppable({
+	// 	addClasses: true,
+	// 	accept: ".vid, .chat",
+	// });
 
-	vidArr.push(test1);
-	vidArr.push(test2);
-	//vidArr.splice(0, 1);
-	//$(test1).remove();
-	console.log(vidArr);
+	// vidArr.push(test1);
+	// vidArr.push(test2);
+	// //vidArr.splice(0, 1);
+	// //$(test1).remove();
+	// console.log(vidArr);
 
 	//$(".tabs").tabs();
 });
@@ -56,9 +56,42 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 	ui.draggable.parent().droppable("disable");
 });
 
+// Tell user if streamer status is either
+// 		Online
+// 		Offline
+// 		Not available
+$("#streamer").on("keydown", function() {
+	clearTimeout(timeout);
+	$(".text-status").text("");
+	$("#startStream").text("Watch");
+	$(".loading").css("display", "inline-block");
+	$(".green").removeClass("show-status");
+	$(".red").removeClass("show-status");
+	timeout = setTimeout(function() {
+		var streamer = $("#streamer").val();
 
-$("#streamer").on("keypress", function() {
+		if(streamer == "") {
+			$(".loading").css("display", "none");
+			return;
+		}
+		console.log(streamer);
+		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
 
+		twitchRequest(query).done(function(response) {
+			console.log(response);
+			$(".loading").css("display", "none");
+			if(response.stream == null) {
+				$("#startStream").text("Watch Anyway");
+				$(".red").addClass("show-status");
+				$(".text-status").text("Status: Offline").css("color","red");
+			}
+			else {
+				$(".green").addClass("show-status");
+				$("#startStream").text("Watch");
+				$(".text-status").text("Status: Online").css("color","green");
+			}
+		});
+	}, 500);
 
 });
 
@@ -142,40 +175,30 @@ $(document).on("click", ".nav-tabs li", function() {
 	var correspondingContent = currentTab.data("tab");
 	if(correspondingContent) {
 		console.log(correspondingContent);
-		$(".player").find(".panel.panel-active").removeClass("panel-active");
-		$("#" + correspondingContent).addClass("panel-active");
+		$(".player").find(".content.content-active").removeClass("content-active");
+		$("#" + correspondingContent).addClass("content-active");
 	}
 });
 
-// $(document).on("click", "a input", function() {
-// 	$(this).parent().css("color", "black");
-// 	$(this).focus();
-
-// });
 
 // Assign name to tab with text from user after pressing 'enter'
 $(document).on("keypress", "a input", function(event) {
 	if(!event)
 		e = window.event;
 	var keyCode = event.keyCode || event.which;
-	//console.log(keyCode);
 	if(keyCode === 13) {
 		var title = $(this).val();
 		currentTab.data("tab", title);
-		//console.log(title);
 		var a = $(this).parent();
+		a.text(title);
 		$(this).remove();
-		a.text(title); // test
 		var contentWrapper = $("<div></div>");
-		contentWrapper.addClass("row panel");
+		contentWrapper.addClass("row content");
 		contentWrapper.attr("id", title);
-		//contentWrapper.text(title);
 		contentWrapper.appendTo(".player");
-		//a.attr("href", "#");
-		console.log($(".player").find(".panel.panel-active").attr("id"));
-		$(".player").find(".panel.panel-active").removeClass("panel-active");
-		contentWrapper.addClass("panel-active");
-		//$(".tabs").tabs("refresh");
+		console.log($(".player").find(".content.content-active").attr("id"));
+		$(".player").find(".content.content-active").removeClass("content-active");
+		contentWrapper.addClass("content-active");
 	}
 });
 
@@ -194,7 +217,6 @@ function checkDupeStreamers(streamer) {
 			return true;
 		}
 	}
-
 	return false;
 }
 
@@ -207,8 +229,11 @@ function twitchRequest(query) {
 		},
 		error : function(jqXHR, textStatus, errorThrown) { 
 			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
-   				console.log('There was a 404 error.'); 
+   				console.log('There was a 404 error.');
    				$(".error span").text("Error: Could not load");
+   				$(".loading").css("display", "none");
+   				$(".red").addClass("show-status");
+   				$(".text-status").text("Status: Not Found").css("color","red");
 			}
 		}
 	});
@@ -218,57 +243,33 @@ function twitchRequest(query) {
 }
 
 function findStream(streamer) {
-	//var streamer = $("#streamer").val();
-	$(".error span").text("Error");
 
 	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
 
-	// $.ajax({
-	// 	url: query, 
-	// 	method: 'GET', 
-	// 	headers: {
-	// 		"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
-	// 	},
-	// 	error : function(jqXHR, textStatus, errorThrown) { 
-	// 		if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
- //   				console.log('There was a 404 error.'); 
-	// 		}
-	// 	}
-	// })
 	twitchRequest(query).done(function(response) {
 		console.log(response);
-		if(!response.stream) {
+		if(response.stream == null) {
 			console.log("NO RESPONSE");
-			return;
 		}
 		var channelAPI = response._links.self;
 		console.log(channelAPI);
-		var streamName = response.stream.channel.name;
-		console.log(streamName);
-		
-		if(!checkDupeStreamers(streamName)) {
-			//currentStreamers.push(streamName);
-		}
-		else return;
+		//var streamer = response.stream.channel.name;
+		console.log(streamer);
 
 		var vid_container = $("<div>");
 		vidArr.push(vid_container);
 		vid_container.addClass("col-lg-6");
-		//vid_container.attr("id", "vid" + vidNum);
 		vid_container.appendTo("#" + currentTab.data("tab"));
 		vid_container.droppable({
 			addClasses: true,
 			accept: ".vid, .chat",
-			// classes: {
-			// "ui-droppable-active": "highlight"
-			// }
 		});
 		vid_container.droppable("disable");
 		vidNum++;
 		var vidEmbed = $("<div>");
-		vidEmbed.attr("id", streamName);
+		vidEmbed.attr("id", streamer);
 		vidEmbed.addClass("vid");
-		vidEmbed.data("name", streamName);
+		vidEmbed.data("name", streamer);
 		vidEmbed.appendTo(vid_container);
 
 		var deleteVid = $("<i></i>");
@@ -276,26 +277,18 @@ function findStream(streamer) {
 		deleteVid.attr("aria-hidden", true);
 		deleteVid.appendTo(vidEmbed);
 
-		//Move cursor img for draggable handle
-		// var move = $("<img>");
-		// move.attr("src", "assets/images/move_cursor.png");
-		// move.appendTo(".vid");
-
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
 		move.appendTo(".vid");
 
-
 		// Configure options for iframe embed
 		var options = {
-		//	width: 720,
-		//	height: 400,
-			channel: streamName
+			channel: streamer
 		};
 
 		// Create interactive Iframe Embed
-		var player = new Twitch.Player(streamName, options);
+		var player = new Twitch.Player(streamer, options);
 		
 		vidEmbed.draggable({
 			addClasses: true,
@@ -320,7 +313,6 @@ function findStream(streamer) {
 				clone.children().css("width", width);
 				clone.children().css("height", height);
 				clone.children().css("background-color", "grey");
-				//clone.css({"display","none"});
 				return clone;
 			},
 			containment: "parent",
@@ -335,13 +327,14 @@ function findStream(streamer) {
 	});
 
 	$("#streamer").val("");
+	$(".text-status").text("");
+	$("#startStream").text("Watch");
+	$(".green").removeClass("show-status");
+	$(".red").removeClass("show-status");
 	return false;	
 }
 
 function findChat(streamer) {
-	//var streamer = $("#chat").val();
-	$(".error span").text("Error");
-
 	if(!streamer) {
 		return;
 	}
@@ -360,9 +353,6 @@ function findChat(streamer) {
 		chat_container.droppable({
 			addClasses: true,
 			accept: ".vid, .chat",
-			// classes: {
-			// "ui-droppable-active": "highlight"
-			// }
 		});
 		chat_container.droppable("disable");
 
@@ -374,11 +364,6 @@ function findChat(streamer) {
 		deleteChat.addClass("fa fa-times");
 		deleteChat.attr("aria-hidden", true);
 		deleteChat.appendTo(chatEmbed);
-
-		//Move cursor img for draggable handle
-		// var move = $("<img>");
-		// move.attr("src", "assets/images/move_cursor.png");
-		// move.appendTo(".vid");
 
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
@@ -429,5 +414,21 @@ function findChat(streamer) {
 	});
 
 	$("#chat").val("");
+	$(".green").removeClass("show-status");
+	$(".red").removeClass("show-status");
 	return false;	
 }
+
+$(".toggle i").on("click", function() {
+	var up_down = $(this).hasClass("fa-chevron-up");
+	if(up_down) {
+		$(".search").slideUp(200);
+		$(this).removeClass("fa-chevron-up");
+		$(this).addClass("fa-chevron-down");
+	}
+	else {
+		$(".search").slideDown(200);
+		$(this).removeClass("fa-chevron-down");
+		$(this).addClass("fa-chevron-up");
+	}
+})
