@@ -4,8 +4,50 @@ var vidNum = 0;
 var currentTab = $(".home").data("tab", "Home");
 var timeout = null;
 
+var draggableConfig = {
+	addClasses: true,
+	revert: "invalid",
+	revertDuration: 100,
+	handle: ".fa-arrows",
+	appendTo: "body",
+	helper: function() {
+		// Get current size of embed video
+		var width = $(this).innerWidth();
+		var height = $(this).innerHeight();
+		console.log(width);
+		console.log(height);
+		// Make copy of embed element and its container
+		var clone = $(this).parent().clone();
+		
+		// Create 'shadow' of element with same dimensions
+		clone.children().empty();
+		clone.children().css("width", width);
+		clone.children().css("height", height);
+		clone.children().css("background-color", "grey");
+		clone.children().css("opacity", 0.5);
+		return clone;
+	},
+	containment: "parent",
+	tolerance: "pointer",
+	scroll: false,
+	scrollSpeed: 10
+}
+
+var menuHeight = function() {
+	var tabHeight = $(".tabs").outerHeight(true);
+	var searchHeight = $(".search").outerHeight(true);
+	setTimeout ( function () {
+        var toggleHeight = $('.toggle').outerHeight( true );
+        console.log(tabHeight + searchHeight + toggleHeight);
+        return tabHeight + searchHeight + toggleHeight;
+    }, 50);
+}
+
 $(document).ready(function() {
 
+	console.log(window.innerHeight);
+	menuHeight();
+	
 	// var test1 = $("<div>").addClass("col-lg-6");
 	// test1.appendTo(".player");
 	// $("<div>").addClass("temp").appendTo(test1);
@@ -42,18 +84,30 @@ $(document).ready(function() {
  *  Remove border styling
  */
 $(document).on("drop", ".ui-droppable", function(event, ui) {
+	var otherVid = $(this).children();
+	
+	console.log(otherVid);
 	$(this).empty();
+	
+	console.log(ui.draggable);
+
 	var oldParent = ui.draggable.parent();
-	var newTemp = $("<div>");
-	newTemp.addClass("temp");
-	oldParent.droppable("enable");
+	oldParent.append(otherVid);
+	otherVid.draggable(draggableConfig);	
+	$(this).append(ui.draggable);
 
-	newTemp.appendTo(oldParent);
-	ui.draggable.appendTo(this);
-	ui.draggable.css("left", 0);
-	ui.draggable.css("top", 0);
 
-	ui.draggable.parent().droppable("disable");
+	// var oldParent = ui.draggable.parent();
+	// var newTemp = $("<div>");
+	// newTemp.addClass("temp");
+	// oldParent.droppable("enable");
+
+	// newTemp.appendTo(oldParent);
+	// ui.draggable.appendTo(this);
+	// ui.draggable.css("left", 0);
+	// ui.draggable.css("top", 0);
+
+	//ui.draggable.parent().droppable("disable");
 });
 
 // Tell user if streamer status is either
@@ -64,7 +118,6 @@ $("#streamer").on("keydown", function() {
 	clearTimeout(timeout);
 	$(".text-status").text("");
 	$("#startStream").text("Watch");
-	$(".loading").css("display", "inline-block");
 	$(".green").removeClass("show-status");
 	$(".red").removeClass("show-status");
 	timeout = setTimeout(function() {
@@ -76,7 +129,7 @@ $("#streamer").on("keydown", function() {
 		}
 		console.log(streamer);
 		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
-
+		$(".loading").css("display", "inline-block");
 		twitchRequest(query).done(function(response) {
 			console.log(response);
 			$(".loading").css("display", "none");
@@ -262,9 +315,16 @@ function findStream(streamer) {
 		vid_container.appendTo("#" + currentTab.data("tab"));
 		vid_container.droppable({
 			addClasses: true,
-			accept: ".vid, .chat",
+			tolerance: "pointer",
+			accept: function(draggable) {
+				var id = draggable.attr("id");
+				if($(this).children(".vid").attr("id") == id)
+					return false;
+				else return true;
+			}
+
 		});
-		vid_container.droppable("disable");
+		//vid_container.droppable("disable");
 		vidNum++;
 		var vidEmbed = $("<div>");
 		vidEmbed.attr("id", streamer);
@@ -290,34 +350,7 @@ function findStream(streamer) {
 		// Create interactive Iframe Embed
 		var player = new Twitch.Player(streamer, options);
 		
-		vidEmbed.draggable({
-			addClasses: true,
-		//	opacity: 0.50,
-			revert: "invalid",
-			revertDuration: 100,
-			scroll: false,
-			handle: ".fa-arrows",
-			appendTo: "body",
-			helper: function() {
-
-				// Get current size of embed video
-				var width = $(this).innerWidth();
-				var height = $(this).innerHeight();
-				console.log(width);
-				console.log(height);
-				// Make copy of embed element and its container
-				var clone = $(this).parent().clone();
-				
-				// Create 'shadow' of element with same dimensions
-				clone.children().empty();
-				clone.children().css("width", width);
-				clone.children().css("height", height);
-				clone.children().css("background-color", "grey");
-				return clone;
-			},
-			containment: "parent",
-			scrollSpeed: 10
-		});
+		vidEmbed.draggable(draggableConfig);
 
 
 		if($("input[name='chat']").prop("checked")) {
@@ -338,9 +371,9 @@ function findChat(streamer) {
 	if(!streamer) {
 		return;
 	}
-	var query2 = "https://api.twitch.tv/kraken/chat/" + streamer;
+	var query = "https://api.twitch.tv/kraken/chat/" + streamer;
 	
-	twitchRequest(query2).done(function(request) {
+	twitchRequest(query).done(function(request) {
 		console.log(request);
 
 		var query = "http://www.twitch.tv/" + streamer + "/chat";
@@ -349,15 +382,22 @@ function findChat(streamer) {
 		//vidArr.push(vid_container);
 		chat_container.addClass("col-lg-6");
 		//vid_container.attr("id", "vid" + vidNum);
-		chat_container.appendTo(".player");
+		chat_container.appendTo("#" + currentTab.data("tab"));
 		chat_container.droppable({
 			addClasses: true,
-			accept: ".vid, .chat",
+			tolerance: "pointer",
+			accept: function(draggable) {
+				console.log(draggable.children("iframe"));
+				var id = draggable.children("iframe").data("streamer");
+				if($(this).children().children("iframe").data("streamer") == id)
+					return false;
+				 return true;
+			}
 		});
-		chat_container.droppable("disable");
+		//chat_container.droppable("disable");
 
 		chatEmbed = $("<div></div>");
-		chatEmbed.addClass("chat");
+		chatEmbed.addClass("chat " + streamer);
 		chatEmbed.appendTo(chat_container);
 
 		var deleteChat = $("<i></i>");
@@ -373,50 +413,19 @@ function findChat(streamer) {
 		var chat = $("<iframe></iframe>");
 		chat.attr("frameborder", "0");
 		chat.attr("scrolling", "no");
-		chat.data("streamer", streamer);
+		chat.attr("data-streamer", streamer);
+		console.log(chat.data("streamer"));
 		chat.attr("src", query);
 
 		chat.appendTo(chatEmbed);
 
-		chatEmbed.draggable({
-				addClasses: true,
-			//	opacity: 0.50,
-				revert: "invalid",
-				revertDuration: 100,
-				scroll: false,
-				handle: ".fa-arrows",
-				appendTo: "body",
-				helper: function() {
+		chatEmbed.draggable(draggableConfig);
 
-					// Get current size of embed video
-					var width = $(this).innerWidth();
-					var height = $(this).innerHeight();
-					console.log(width);
-					console.log(height);
-					// Make copy of embed element and its container
-					var clone = $(this).parent().clone();
-					
-					// Create 'shadow' of element with same dimensions
-					clone.children().empty();
-					clone.children().css("width", width);
-					clone.children().css("height", height);
-					clone.children().css("background-color", "grey");
-					//clone.css({"display","none"});
-					return clone;
-				},
-				containment: "parent",
-				scrollSpeed: 10
-			});
-
-		console.log(chatEmbed);
-		chat_container.appendTo("#" + currentTab.data("tab"));	
-
+		$("#chat").val("");
+		$(".green").removeClass("show-status");
+		$(".red").removeClass("show-status");
+		return false;	
 	});
-
-	$("#chat").val("");
-	$(".green").removeClass("show-status");
-	$(".red").removeClass("show-status");
-	return false;	
 }
 
 $(".toggle i").on("click", function() {

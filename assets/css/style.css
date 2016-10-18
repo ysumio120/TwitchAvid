@@ -19,6 +19,10 @@ body {
 	border: 2px dashed transparent;
 }
 
+.vid-fit {
+	padding-bottom: 0%;
+}
+
 .vid iframe,
 .chat iframe {
 	position: absolute;
@@ -71,7 +75,7 @@ body {
 .ui-droppable {
 	/*padding-top: 15px;
 	padding-bottom: 15px;*/
-	visibility: hidden;
+	/*visibility: hidden;*/
 	display: block;
 }
 
@@ -79,9 +83,9 @@ body {
 	border: 2px dashed transparent;
 }
 
-.ui-droppable-disabled {
+/*.ui-droppable-disabled {
 	visibility: visible;
-}
+}*/
 
 .ui-droppable-active {
 	visibility: visible;

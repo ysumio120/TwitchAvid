@@ -24,9 +24,9 @@
 	<script src="https://use.fontawesome.com/323615c8ac.js"></script>
 </head>
 <body>
-	<div class="container">
+	<div class="container search">
 		<div class="row">
-			<div class="col-lg-6 search">
+			<div class="col-lg-6">
 				<label for="streamer">Enter Stream</label>
 				<br>
 				<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
@@ -39,13 +39,14 @@
 				<button id="startStream">Watch</button>
 				<!-- <button class="" id="edit">Edit</button> -->
 				<form action="">
- 					<input type="checkbox" name="chat"> Include chat
+ 					<input type="checkbox" name="chat" id="include_chat">
+ 					<label for="include_chat"> Include chat</label>
 				</form>
 			</div>
 			<!-- <button class="pull-right" id="cancel">Cancel</button>
 			<button class="pull-right" id="delete">Delete</button>
 			<br> -->
-			<div class="col-lg-6 search">
+			<div class="col-lg-6">
 				<label for="streamer">Enter Chat</label><br>
 				<input type="text" name="Chat" placeholder="Chat" id="chat"/>
 				<button id="startChat">Chat</button>
