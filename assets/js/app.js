@@ -354,9 +354,9 @@ function findStream(streamer) {
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
-		move.appendTo(".vid");
+		move.appendTo(vidEmbed);
 
-		var moveText = $("<span></span");
+		var moveText = $("<span></span>");
 		moveText.text("Move");
 		moveText.addClass("fa-arrows-text");
 		moveText.appendTo(move);
@@ -427,7 +427,7 @@ function findChat(streamer) {
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
-		move.appendTo(".chat");	
+		move.appendTo(chatEmbed);	
 
 		var chat = $("<iframe></iframe>");
 		chat.attr("frameborder", "0");
