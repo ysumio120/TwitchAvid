@@ -38,6 +38,7 @@ body {
     left: 48%;
     font-size: 150%;
     display: none;
+    padding: 2px 2px;
 }
 
 .vid .fa-times {
@@ -129,9 +130,9 @@ body {
 	z-index: 1;
 	font-size: 11px;
 	color: white;
-    left: -30.5%;
+    left: -19.5%;
     bottom: 37px;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0,0,0,0.7);
     padding: 4px 5px;
 	display: none;
 }
