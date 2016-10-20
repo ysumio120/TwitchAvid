@@ -73,10 +73,11 @@ body {
 }
 
 .ui-droppable {
-	/*padding-top: 15px;
-	padding-bottom: 15px;*/
+	padding-top: 15px;
+	padding-bottom: 15px;
 	/*visibility: hidden;*/
 	display: block;
+	float: left;
 }
 
 .ui-draggable {
@@ -91,14 +92,14 @@ body {
 	visibility: visible;
 }
 
-.ui-droppable-active div{
+.ui-droppable-active .vid{
 	border: 2px dashed black;
-	opacity: 0.3;
+	opacity: 1.0;
 }
 
-.ui-droppable-hover div{
+.ui-droppable-hover .vid {
 	border: 2px solid black;
-	opacity: 1.0;
+	opacity: 0.5;
 }
 
 .deletable {
@@ -114,6 +115,29 @@ body {
 .vid .fa-arrows:hover {
 	color: #b2a0d2;
 	cursor: pointer;
+}
+
+.chat .fa-times:hover,
+.chat .fa-arrows:hover {
+	color: black;
+	cursor: pointer;
+}
+
+.fa-arrows-text {
+	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;;
+	position: absolute;
+	z-index: 1;
+	font-size: 11px;
+	color: white;
+    left: -30.5%;
+    bottom: 37px;
+    background-color: rgba(0,0,0,0.5);
+    padding: 4px 5px;
+	display: none;
+}
+
+.vid .fa-arrows:hover .fa-arrows-text {
+    display: inline-block;
 }
 
 .nav-tabs {

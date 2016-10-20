@@ -1,3 +1,12 @@
+//Remove col-lg-6 to smoothly resize
+
+//****************************************************************
+
+
+
+
+
+
 var vidArr = [];
 var currentStreamers = [];
 var vidNum = 0;
@@ -20,18 +29,29 @@ var draggableConfig = {
 		var clone = $(this).parent().clone();
 		
 		// Create 'shadow' of element with same dimensions
-		clone.children().empty();
-		clone.children().css("width", width);
-		clone.children().css("height", height);
-		clone.children().css("background-color", "grey");
-		clone.children().css("opacity", 0.5);
+		clone.children(".vid").empty();
+		clone.children(".vid").css("width", width);
+		clone.children(".vid").css("height", height);
+		clone.children(".vid").css("background-color", "grey");
+		clone.children(".vid").css("opacity", 0.5);
 		return clone;
 	},
 	containment: "parent",
 	tolerance: "pointer",
 	scroll: false,
 	scrollSpeed: 10
-}
+};
+
+var resizableConfig = {
+	handles: "se",
+	stop: function() {
+		var vid = $(this).children(".vid");
+		var width = vid.innerWidth();
+		var height = vid.innerHeight();
+		$(this).width(width);
+		$(this).height(height);
+	}
+};
 
 var menuHeight = function() {
 	var tabHeight = $(".tabs").outerHeight(true);
@@ -41,7 +61,7 @@ var menuHeight = function() {
         console.log(tabHeight + searchHeight + toggleHeight);
         return tabHeight + searchHeight + toggleHeight;
     }, 50);
-}
+};
 
 $(document).ready(function() {
 
@@ -84,20 +104,11 @@ $(document).ready(function() {
  *  Remove border styling
  */
 $(document).on("drop", ".ui-droppable", function(event, ui) {
-	var otherVid = $(this).children();
-	
-	console.log(otherVid);
-	$(this).empty();
-	
-	console.log(ui.draggable);
-
+	var otherVid = $(this).children(".vid");
 	var oldParent = ui.draggable.parent();
 	oldParent.append(otherVid);
-	otherVid.draggable(draggableConfig);	
 	$(this).append(ui.draggable);
 
-
-	// var oldParent = ui.draggable.parent();
 	// var newTemp = $("<div>");
 	// newTemp.addClass("temp");
 	// oldParent.droppable("enable");
@@ -113,7 +124,7 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 // Tell user if streamer status is either
 // 		Online
 // 		Offline
-// 		Not available
+// 		Not available (Does not exist)
 $("#streamer").on("keydown", function() {
 	clearTimeout(timeout);
 	$(".text-status").text("");
@@ -324,6 +335,8 @@ function findStream(streamer) {
 			}
 
 		});
+
+		
 		//vid_container.droppable("disable");
 		vidNum++;
 		var vidEmbed = $("<div>");
@@ -331,6 +344,7 @@ function findStream(streamer) {
 		vidEmbed.addClass("vid");
 		vidEmbed.data("name", streamer);
 		vidEmbed.appendTo(vid_container);
+		
 
 		var deleteVid = $("<i></i>");
 		deleteVid.addClass("fa fa-times");
@@ -342,6 +356,11 @@ function findStream(streamer) {
 		move.addClass("fa fa-arrows");
 		move.appendTo(".vid");
 
+		var moveText = $("<span></span");
+		moveText.text("Move");
+		moveText.addClass("fa-arrows-text");
+		moveText.appendTo(move);
+
 		// Configure options for iframe embed
 		var options = {
 			channel: streamer
@@ -351,7 +370,7 @@ function findStream(streamer) {
 		var player = new Twitch.Player(streamer, options);
 		
 		vidEmbed.draggable(draggableConfig);
-
+		vidEmbed.resizable(resizableConfig);
 
 		if($("input[name='chat']").prop("checked")) {
 			console.log("Chat Checked");
