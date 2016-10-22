@@ -50,6 +50,18 @@ body {
 	display: none;
 }
 
+.vid .aspect-ratio {
+	color: white;
+	position: absolute;
+	z-index: 1;
+    bottom: 14px;
+    left: 53%;
+    width: 22px;
+    display: none;
+    padding: 2px 2px;
+    cursor: pointer;
+}
+
 .chat .fa-arrows {
 	color: #6441a4;
 	position: absolute;
@@ -69,7 +81,9 @@ body {
 }
 
 .vid:hover .fa-arrows,
-.vid:hover .fa-times {
+.vid:hover .fa-times,
+.vid:hover .aspect-ratio,
+.vid:hover .tools-background {
 	display: block;
 }
 
@@ -134,6 +148,19 @@ body {
     bottom: 37px;
     background-color: rgba(0,0,0,0.7);
     padding: 4px 5px;
+	display: none;
+}
+
+.aspect-ratio-text {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    position: absolute;
+    z-index: 1;
+    font-size: 11px;
+    color: white;
+    left: 50.5%;
+    bottom: 50px;
+    background-color: rgba(0,0,0,0.7);
+    padding: 2px 5px;
 	display: none;
 }
 
@@ -204,4 +231,15 @@ body {
 .fa.fa-chevron-up:hover,
 .fa.fa-chevron-down:hover {
 	color: black;
+}
+
+.tools-background {
+    height: 29px;
+    width: 87px;
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1;
+    bottom: 11px;
+    left: 46%;
+    display: none;
 }

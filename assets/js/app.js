@@ -171,28 +171,6 @@ $("#startChat").on("click", function() {
 	findChat(streamer);
 });
 
-$("#edit").on("click", function() {
-	if(vidArr.length > 0) {
-		vidArr[0].remove();
-		vidArr.splice(0, 1);
-	}	
-	// for(var i = 0; i < vidArr.length; i++) {
-	// 	if(vidArr.children().attr("id") == streamer)
-	// }
-});
-
-$("#delete").on("click", function() {
-	$(".ui-droppable").addClass("deletable");
-	$(".vid iframe").css("opacity", 0.3);
-	$(".glyphicon-remove").css("display", "block");
-});
-
-$("#cancel").on("click", function() {
-	$(".ui-droppable").removeClass("deletable");
-	$(".vid iframe").css("opacity", "");
-	$(".glyphicon-remove").css("display", "none");
-});
-
 $(document).on("click", ".fa-times", function() {
 	console.log("CLICKED");
 	var vid = $(this).parent();
@@ -351,6 +329,10 @@ function findStream(streamer) {
 		deleteVid.attr("aria-hidden", true);
 		deleteVid.appendTo(vidEmbed);
 
+		var tools = $("<div>");
+		tools.addClass("tools-background");
+		tools.appendTo(vidEmbed);
+
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
@@ -360,6 +342,17 @@ function findStream(streamer) {
 		moveText.text("Move");
 		moveText.addClass("fa-arrows-text");
 		moveText.appendTo(move);
+
+		var aspect_ratio = $("<img></img>");
+		aspect_ratio.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+		aspect_ratio.addClass("aspect-ratio");
+		aspect_ratio.data("enable", true);
+		aspect_ratio.appendTo(vidEmbed);
+
+		var arText = $("<span></span>");
+		arText.text("Disable Aspect Ratio");
+		arText.addClass("aspect-ratio-text");
+		arText.appendTo(vidEmbed);
 
 		// Configure options for iframe embed
 		var options = {
@@ -459,4 +452,34 @@ $(".toggle i").on("click", function() {
 		$(this).removeClass("fa-chevron-down");
 		$(this).addClass("fa-chevron-up");
 	}
-})
+});
+
+$(document).on({
+	mouseenter: function() {
+		var vid = $(this).parent();
+		var text = vid.children(".aspect-ratio-text");
+		text.css("display", "inline-block");			
+	},
+	mouseleave: function() {
+		var vid = $(this).parent();
+		var text = vid.children(".aspect-ratio-text");
+		text.css("display", "none");
+	},
+	click: function() {
+		var vid = $(this).parent();
+		var text = vid.children(".aspect-ratio-text");
+
+		var icon = $(this);
+		var toggle = icon.data("enable");
+		if(toggle) {
+			icon.data("enable", false);
+			icon.attr("src", "assets/images/aspect_ratio_16_9.png");
+			text.text("Enable Aspect Ratio");
+		}
+		else {
+			icon.data("enable", true);
+			icon.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+			text.text("Disable Aspect Ratio");	
+		}
+	}
+},".aspect-ratio")
