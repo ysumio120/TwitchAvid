@@ -503,12 +503,14 @@ $(document).on({
 },".aspect-ratio")
 
 function toggleAspectRatio(videoPlayer, toggle) {
-	var parentWidth = videoPlayer.width() / window.innerWidth * 100 + "%";
+	var parentWidth = videoPlayer.outerWidth();
 	console.log(parentWidth);
 	var width = videoPlayer.width();
+	console.log("Width: " + width);
 	var height = videoPlayer.innerHeight();
+	console.log("Height: " + height);
 	if(toggle) { // enable aspect ratio
-		videoPlayer.parent().css("width", width);
+		videoPlayer.parent().css("width", parentWidth);
 		videoPlayer.css("padding-bottom", "56.25%");
 		videoPlayer.css("width","100%");
 		videoPlayer.css("height", "0");
