@@ -1,12 +1,3 @@
-//Remove col-lg-6 to smoothly resize
-
-//****************************************************************
-
-
-
-
-
-
 var vidArr = [];
 var currentStreamers = [];
 var vidNum = 0;
@@ -44,12 +35,24 @@ var draggableConfig = {
 
 var resizableConfig = {
 	handles: "se",
+	start: function() {
+		
+		var vidParent = $(this).parent();
+		vidParent.css("width", "");
+		
+		var overlay = $(this).children(".resizable-overlay");
+		overlay.css("display", "block");
+	},
 	stop: function() {
-		var vid = $(this).children(".vid");
-		var width = vid.innerWidth();
-		var height = vid.innerHeight();
-		$(this).width(width);
-		$(this).height(height);
+		// var vid = $(this).children(".vid");
+		// console.log(vid);
+		// var width = vid.innerWidth();
+		// var height = vid.innerHeight();
+		// $(this).width(width);
+		// $(this).height(height);
+
+		var overlay = $(this).children(".resizable-overlay");
+		overlay.css("display", "none");
 	}
 };
 
@@ -298,9 +301,11 @@ function findStream(streamer) {
 		//var streamer = response.stream.channel.name;
 		console.log(streamer);
 
+		// Container to maintain aspect ratio ofvideo player
 		var vid_container = $("<div>");
 		vidArr.push(vid_container);
-		vid_container.addClass("col-lg-6");
+		//vid_container.addClass("col-lg-6");
+		vid_container.css("width", "50%");
 		vid_container.appendTo("#" + currentTab.data("tab"));
 		vid_container.droppable({
 			addClasses: true,
@@ -323,16 +328,23 @@ function findStream(streamer) {
 		vidEmbed.data("name", streamer);
 		vidEmbed.appendTo(vid_container);
 		
-
+		// Icon to remove stream
 		var deleteVid = $("<i></i>");
 		deleteVid.addClass("fa fa-times");
 		deleteVid.attr("aria-hidden", true);
 		deleteVid.appendTo(vidEmbed);
 
+		// Applying overlay will allow resizing even when mousing over the video player
+		var resizableOverlay = $("<div>");
+		resizableOverlay.addClass("resizable-overlay");
+		resizableOverlay.appendTo(vidEmbed);
+
+		// Add background behind new video player buttons for easier view
 		var tools = $("<div>");
 		tools.addClass("tools-background");
 		tools.appendTo(vidEmbed);
 
+		// Icon to move/drag stream
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
@@ -343,6 +355,7 @@ function findStream(streamer) {
 		moveText.addClass("fa-arrows-text");
 		moveText.appendTo(move);
 
+		// Icon to enable/disable aspect ratio
 		var aspect_ratio = $("<img></img>");
 		aspect_ratio.attr("src", "assets/images/aspect_ratio_16_9_red.png");
 		aspect_ratio.addClass("aspect-ratio");
@@ -362,7 +375,10 @@ function findStream(streamer) {
 		// Create interactive Iframe Embed
 		var player = new Twitch.Player(streamer, options);
 		
+		// Create draggable object
 		vidEmbed.draggable(draggableConfig);
+		
+		// Create resizable object
 		vidEmbed.resizable(resizableConfig);
 
 		if($("input[name='chat']").prop("checked")) {
@@ -475,11 +491,32 @@ $(document).on({
 			icon.data("enable", false);
 			icon.attr("src", "assets/images/aspect_ratio_16_9.png");
 			text.text("Enable Aspect Ratio");
+			toggleAspectRatio(vid, false);
 		}
 		else {
 			icon.data("enable", true);
 			icon.attr("src", "assets/images/aspect_ratio_16_9_red.png");
-			text.text("Disable Aspect Ratio");	
+			text.text("Disable Aspect Ratio");
+			toggleAspectRatio(vid, true);	
 		}
 	}
 },".aspect-ratio")
+
+function toggleAspectRatio(videoPlayer, toggle) {
+	var parentWidth = videoPlayer.width() / window.innerWidth * 100 + "%";
+	console.log(parentWidth);
+	var width = videoPlayer.width();
+	var height = videoPlayer.innerHeight();
+	if(toggle) { // enable aspect ratio
+		videoPlayer.parent().css("width", width);
+		videoPlayer.css("padding-bottom", "56.25%");
+		videoPlayer.css("width","100%");
+		videoPlayer.css("height", "0");
+	}
+	else { // disable aspect ratio
+		videoPlayer.parent().css("width", "0%");
+		videoPlayer.css("padding-bottom", "0%");
+		videoPlayer.height(height);
+		videoPlayer.width(width);
+	}
+}

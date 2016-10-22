@@ -243,3 +243,11 @@ body {
     left: 46%;
     display: none;
 }
+
+.resizable-overlay {
+	width: 100%;
+    height: 100%;
+    position: absolute;
+    z-index: 2;
+    display: none;
+}
