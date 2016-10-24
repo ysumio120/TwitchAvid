@@ -3,6 +3,8 @@ var currentStreamers = [];
 var vidNum = 0;
 var currentTab = $(".home").data("tab", "Home");
 var timeout = null;
+var prevDocument; 
+var currDocument = $(document).height();
 
 var draggableConfig = {
 	addClasses: true,
@@ -11,15 +13,15 @@ var draggableConfig = {
 	handle: ".fa-arrows",
 	appendTo: "body",
 	helper: function() {
+
 		// Get current size of embed video
 		var width = $(this).innerWidth();
 		var height = $(this).innerHeight();
 		console.log(width);
 		console.log(height);
-		// Make copy of embed element and its container
-		var clone = $(this).parent().clone();
 		
 		// Create 'shadow' of element with same dimensions
+		var clone = $(this).parent().clone();
 		clone.children(".vid").empty();
 		clone.children(".vid").css("width", width);
 		clone.children(".vid").css("height", height);
@@ -36,22 +38,24 @@ var draggableConfig = {
 var resizableConfig = {
 	handles: "se",
 	start: function() {
-		
+		//console.log("Prev Doc: " + originalDocument);
 		var vidParent = $(this).parent();
 		vidParent.css("width", "");
 		
-		var overlay = $(this).children(".resizable-overlay");
+		var overlay = $(".resizable-overlay");
 		overlay.css("display", "block");
 	},
-	stop: function() {
-		// var vid = $(this).children(".vid");
-		// console.log(vid);
-		// var width = vid.innerWidth();
-		// var height = vid.innerHeight();
-		// $(this).width(width);
-		// $(this).height(height);
-
-		var overlay = $(this).children(".resizable-overlay");
+	stop: function(event, ui) {	
+		prevDocument = currDocument;
+		$("html").height($("body").height());
+		currDocument = $(document).height();
+		if(currDocument - prevDocument > 0) {
+			$("html, body").animate({
+		        scrollTop: $(document).scrollTop() + currDocument - prevDocument
+		    });
+		}
+		
+		var overlay = $(".resizable-overlay");
 		overlay.css("display", "none");
 	}
 };
@@ -516,7 +520,8 @@ function toggleAspectRatio(videoPlayer, toggle) {
 		videoPlayer.css("height", "0");
 	}
 	else { // disable aspect ratio
-		videoPlayer.parent().css("width", "0%");
+		//videoPlayer.parent().css("width", "0%");
+		videoPlayer.parent().css("width", parentWidth);
 		videoPlayer.css("padding-bottom", "0%");
 		videoPlayer.height(height);
 		videoPlayer.width(width);
