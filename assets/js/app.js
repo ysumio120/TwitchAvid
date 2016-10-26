@@ -147,6 +147,14 @@ $("#streamer").on("keydown", function() {
 		}
 		console.log(streamer);
 		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
+
+		var searchChannel = "https://api.twitch.tv/kraken/search/channels?limit=4&q=" + streamer;
+		var searchGame = "https://api.twitch.tv/kraken/search/games?limit=4&q=" + streamer;
+
+		twitchRequest(searchChannel).done(function(response) {
+			console.log(response);
+		});
+
 		$(".loading").css("display", "inline-block");
 		twitchRequest(query).done(function(response) {
 			console.log(response);

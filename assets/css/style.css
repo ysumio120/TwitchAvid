@@ -251,3 +251,10 @@ body {
     z-index: 2;
     display: none;
 }
+
+.searchResults {
+	border: 1px solid black;
+	width: 215px;
+	height: 150px;
+	overflow-y: scroll;
+}
