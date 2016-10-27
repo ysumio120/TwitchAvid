@@ -5,6 +5,7 @@ var currentTab = $(".home").data("tab", "Home");
 var timeout = null;
 var prevDocument; 
 var currDocument = $(document).height();
+var searchInputLength = 0;
 
 var draggableConfig = {
 	addClasses: true,
@@ -70,6 +71,69 @@ var menuHeight = function() {
     }, 50);
 };
 
+function searchInput() {
+	clearTimeout(timeout);
+	$(".text-status").text("");
+	$("#startStream").text("Watch");
+	$(".green").removeClass("show-status");
+	$(".red").removeClass("show-status");
+	timeout = setTimeout(function() {
+		var streamer = $("#streamer").val();
+
+		if(streamer == "") {
+			$(".loading").css("display", "none");
+			return;
+		}
+		console.log(streamer);
+		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
+
+		var searchChannel = "https://api.twitch.tv/kraken/search/channels?limit=5&q=" + streamer;
+		var searchGame = "https://api.twitch.tv/kraken/search/games?q=" + streamer + "&type=suggest";
+
+		twitchRequest(searchChannel).done(function(response) {
+			$(".channels").empty();
+			var results = response.channels
+			for(var i = 0; i < results.length; i++) {
+				var entry = $("<div>");
+				entry.text(results[i].display_name);
+				entry.data("name", results[i].name);
+				console.log(entry.data("name"));
+				entry.appendTo(".channels");
+			}
+			//console.log(response);
+		});
+
+		twitchRequest(searchGame).done(function(response) {
+			//console.log(response);
+			$(".games").empty();
+			var results = response.games
+			for(var i = 0; i < 4; i++) {
+				var entry = $("<div>");
+				entry.text(results[i].name);
+				entry.data("name", results[i].name);
+				entry.appendTo(".games");
+			}
+			//console.log(response);
+		});
+
+		$(".loading").css("display", "inline-block");
+		twitchRequest(query).done(function(response) {
+			console.log(response);
+			$(".loading").css("display", "none");
+			if(response.stream == null) {
+				$("#startStream").text("Watch Anyway");
+				$(".red").addClass("show-status");
+				$(".text-status").text("Status: Offline").css("color","red");
+			}
+			else {
+				$(".green").addClass("show-status");
+				$("#startStream").text("Watch");
+				$(".text-status").text("Status: Online").css("color","green");
+			}
+		});
+	}, 400);
+}
+
 $(document).ready(function() {
 
 	console.log(window.innerHeight);
@@ -132,46 +196,42 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 // 		Online
 // 		Offline
 // 		Not available (Does not exist)
-$("#streamer").on("keydown", function() {
-	clearTimeout(timeout);
-	$(".text-status").text("");
-	$("#startStream").text("Watch");
-	$(".green").removeClass("show-status");
-	$(".red").removeClass("show-status");
-	timeout = setTimeout(function() {
-		var streamer = $("#streamer").val();
+$("#streamer").on("keypress", function() {
+	//searchInput();
 
-		if(streamer == "") {
-			$(".loading").css("display", "none");
-			return;
-		}
-		console.log(streamer);
-		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
+});
 
-		var searchChannel = "https://api.twitch.tv/kraken/search/channels?limit=4&q=" + streamer;
-		var searchGame = "https://api.twitch.tv/kraken/search/games?limit=4&q=" + streamer;
+$("#streamer").on("keyup", function(event) {
+	console.log($(this));
+	var hovered = $(this).find(".results-hover");
+	console.log(hovered);
+	if(hovered.length == 0)
+		console.log("Nothing hovered");
+	if(!event)
+		e = window.event;
+	var keyCode = event.keyCode || event.which;
+	switch(keyCode) {
+		// // Backspace
+		// case 8:
+		// 	searchInput();
+		// 	break;
+		// // Delete
+		// case 46:
+		// 	searchInput();
+		// 	break;
+		// Up arrow
+		case 38:
 
-		twitchRequest(searchChannel).done(function(response) {
-			console.log(response);
-		});
-
-		$(".loading").css("display", "inline-block");
-		twitchRequest(query).done(function(response) {
-			console.log(response);
-			$(".loading").css("display", "none");
-			if(response.stream == null) {
-				$("#startStream").text("Watch Anyway");
-				$(".red").addClass("show-status");
-				$(".text-status").text("Status: Offline").css("color","red");
+			break;
+		// Down arrow	
+		case 40:
+			break;
+		default:
+			if(searchInputLength != $(this).val().length) {
+				searchInputLength = $(this).val().length;
+				searchInput();
 			}
-			else {
-				$(".green").addClass("show-status");
-				$("#startStream").text("Watch");
-				$(".text-status").text("Status: Online").css("color","green");
-			}
-		});
-	}, 500);
-
+	}
 });
 
 $("#startStream").on("click", function() {
@@ -289,6 +349,7 @@ function twitchRequest(query) {
    				console.log('There was a 404 error.');
    				$(".error span").text("Error: Could not load");
    				$(".loading").css("display", "none");
+   				$(".green").removeClass("show-status");
    				$(".red").addClass("show-status");
    				$(".text-status").text("Status: Not Found").css("color","red");
 			}
@@ -535,3 +596,12 @@ function toggleAspectRatio(videoPlayer, toggle) {
 		videoPlayer.width(width);
 	}
 }
+
+$(".channels").on({
+	click: function() {
+		var selected = $(this);
+		var channelName = selected.data("name");
+		findStream(channelName);
+	}
+
+}, "div");

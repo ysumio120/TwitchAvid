@@ -258,3 +258,10 @@ body {
 	height: 150px;
 	overflow-y: scroll;
 }
+
+.channels div:hover,
+.games div:hover,
+.results-hover {
+	background-color: rgba(0,0,0,0.3);
+	cursor: pointer;
+}
