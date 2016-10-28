@@ -82,6 +82,8 @@ function searchInput() {
 
 		if(streamer == "") {
 			$(".loading").css("display", "none");
+			$(".channels").empty();
+			$(".games").empty();
 			return;
 		}
 		console.log(streamer);
@@ -219,6 +221,11 @@ $("#streamer").on("keyup", function(event) {
 		// case 46:
 		// 	searchInput();
 		// 	break;
+
+		// Enter
+		case 13:
+			
+			break;
 		// Up arrow
 		case 38:
 
