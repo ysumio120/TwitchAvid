@@ -95,7 +95,11 @@ function searchInput() {
 		twitchRequest(searchChannel).done(function(response) {
 			$(".channels").empty();
 			var results = response.channels
-			for(var i = 0; i < results.length; i++) {
+			if(results.length > 0) {
+				$("<b>Channels</b>").appendTo(".channels");
+				$(".searchResults").css("display", "block");
+			}
+ 			for(var i = 0; i < results.length; i++) {
 				var entry = $("<div>");
 				entry.text(results[i].display_name);
 				entry.data("name", results[i].name);
@@ -106,10 +110,17 @@ function searchInput() {
 		});
 
 		twitchRequest(searchGame).done(function(response) {
-			//console.log(response);
+			console.log(response);
 			$(".games").empty();
 			var results = response.games
-			for(var i = 0; i < 4; i++) {
+			if(results.length > 0) {
+				$("<b>Games</b>").appendTo(".games");
+				$(".searchResults").css("display", "block");
+			}
+			var limit = 4;
+			if(results.length < 4)
+				limit = results.length;
+			for(var i = 0; i < limit; i++) {
 				var entry = $("<div>");
 				entry.text(results[i].name);
 				entry.data("name", results[i].name);
@@ -140,34 +151,8 @@ $(document).ready(function() {
 
 	console.log(window.innerHeight);
 	menuHeight();
-	
-	// var test1 = $("<div>").addClass("col-lg-6");
-	// test1.appendTo(".player");
-	// $("<div>").addClass("temp").appendTo(test1);
-	
-	// //TEST
-	// var test2 = $("<div>").addClass("col-lg-6");
-	// test2.appendTo(".player");
-	// $("<div>").addClass("temp").appendTo(test2);
-	
-	// //Activate droppable and accept draggables
-	// $(test1).droppable({
-	// 	addClasses: true,
-	// 	accept: ".vid, .chat",
-	// });
-	
-	// $(test2).droppable({
-	// 	addClasses: true,
-	// 	accept: ".vid, .chat",
-	// });
+	topGames();
 
-	// vidArr.push(test1);
-	// vidArr.push(test2);
-	// //vidArr.splice(0, 1);
-	// //$(test1).remove();
-	// console.log(vidArr);
-
-	//$(".tabs").tabs();
 });
 
 /* On success drop, 
@@ -181,31 +166,15 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 	var oldParent = ui.draggable.parent();
 	oldParent.append(otherVid);
 	$(this).append(ui.draggable);
-
-	// var newTemp = $("<div>");
-	// newTemp.addClass("temp");
-	// oldParent.droppable("enable");
-
-	// newTemp.appendTo(oldParent);
-	// ui.draggable.appendTo(this);
-	// ui.draggable.css("left", 0);
-	// ui.draggable.css("top", 0);
-
-	//ui.draggable.parent().droppable("disable");
 });
 
 // Tell user if streamer status is either
 // 		Online
 // 		Offline
 // 		Not available (Does not exist)
-$("#streamer").on("keypress", function() {
-	//searchInput();
-
-});
-
-$("#streamer").on("keyup", function(event) {
+$("#streamer").on("keydown", function(event) {
 	console.log($(this));
-	var hovered = $(this).find(".results-hover");
+	var hovered = $(".searchResults").find(".results-hover");
 	console.log(hovered);
 	if(hovered.length == 0)
 		console.log("Nothing hovered");
@@ -213,25 +182,81 @@ $("#streamer").on("keyup", function(event) {
 		e = window.event;
 	var keyCode = event.keyCode || event.which;
 	switch(keyCode) {
-		// // Backspace
-		// case 8:
-		// 	searchInput();
-		// 	break;
-		// // Delete
-		// case 46:
-		// 	searchInput();
-		// 	break;
-
 		// Enter
 		case 13:
-			
+			if(hovered.length != 0) {
+				var parentCategory = hovered.parent();
+				if(parentCategory.hasClass("channels")) {
+					findStream($(".results-hover").data("name"));
+
+				}
+				else if(parentCategory.hasClass("games")) {
+
+				}
+			}
 			break;
 		// Up arrow
 		case 38:
-
+			// Prevent input cursor from moving to the beginning 
+			event.preventDefault();
+			// Highlight previous result
+			var prevSibling = hovered.prev("div");
+			if(prevSibling.length != 0) {
+				prevSibling.addClass("results-hover");
+				hovered.removeClass("results-hover");
+			}
+			// If you reach the first result a catergory, highlight the last available
+			// result of the previous category 
+			else {
+				var prevCategory = hovered.parent().prev();					
+				do {
+					if(prevCategory.children().length != 0) {
+						prevCategory.children("div:last").addClass("results-hover");
+						hovered.removeClass("results-hover");
+						break;
+					}
+					prevCategory = prevCategory.prev();
+				}while(prevCategory.length != 0);
+			}
+			console.log(prevSibling);
+			break;
 			break;
 		// Down arrow	
 		case 40:
+			// Prevent input cursor from moving to the end
+			event.preventDefault();
+			// Highlight first available result
+			if(hovered.length == 0) {
+				var searchResultsChild = $(".searchResults div").first();
+				do {
+					if(searchResultsChild.children()) {
+						searchResultsChild.children("div:first").addClass("results-hover");
+						break;
+					}
+					searchResultsChild = searchResultsChild.next();
+				}while(searchResultsChild.length != 0);
+				break;
+			}
+			// Highlight next result
+			var nextSibling = hovered.next("div");
+			if(nextSibling.length != 0) {
+				nextSibling.addClass("results-hover");
+				hovered.removeClass("results-hover");
+			}
+			// If you reach the last result a catergory, highlight the first available
+			// result of the next category 
+			else {
+				var nextCategory = hovered.parent().next();					
+				do {
+					if(nextCategory.children().length != 0) {
+						nextCategory.children("div:first").addClass("results-hover");
+						hovered.removeClass("results-hover");
+						break;
+					}
+					nextCategory = nextCategory.next();
+				}while(nextCategory.length != 0);
+			}
+			console.log(nextSibling);
 			break;
 		default:
 			if(searchInputLength != $(this).val().length) {
@@ -241,15 +266,33 @@ $("#streamer").on("keyup", function(event) {
 	}
 });
 
+// Events when handling with each search result
+$(".searchResults div").on({
+	mousemove: function() {
+		var hovered = $(".searchResults").find(".results-hover");
+		hovered.removeClass("results-hover");
+
+		$(this).addClass("results-hover");
+	},
+	mouseleave: function() {
+		$(this).removeClass("results-hover");
+	},
+	click: function() {
+		var selected = $(this);
+		var channelName = selected.data("name");
+		if(selected.parent().hasClass("channels")){	
+			findStream(channelName);
+		}
+	}
+}, "div");
+
 $("#startStream").on("click", function() {
 	var streamer = $("#streamer").val();
-	
 	findStream(streamer);
 });
 
 $("#startChat").on("click", function() {
 	var streamer = $("#chat").val();
-
 	findChat(streamer);
 });
 
@@ -270,6 +313,7 @@ $(document).on("click", ".fa-times", function() {
 	var newTemp = $("<div>");
 	newTemp.addClass("temp");
 	newTemp.appendTo(container);
+	container.remove();
 });
 
 // Toggle tabs when clicked and display content
@@ -311,7 +355,9 @@ $(document).on("keypress", "a input", function(event) {
 		e = window.event;
 	var keyCode = event.keyCode || event.which;
 	if(keyCode === 13) {
-		var title = $(this).val();
+		var title = $(this).val().trim();
+		if(title == "")
+			return;
 		currentTab.data("tab", title);
 		var a = $(this).parent();
 		a.text(title);
@@ -352,7 +398,7 @@ function twitchRequest(query) {
 			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg"
 		},
 		error : function(jqXHR, textStatus, errorThrown) { 
-			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found' || jqXHR.status == 422) { 
    				console.log('There was a 404 error.');
    				$(".error span").text("Error: Could not load");
    				$(".loading").css("display", "none");
@@ -377,14 +423,12 @@ function findStream(streamer) {
 			console.log("NO RESPONSE");
 		}
 		var channelAPI = response._links.self;
-		console.log(channelAPI);
-		//var streamer = response.stream.channel.name;
-		console.log(streamer);
+		//console.log(channelAPI);
+		//console.log(streamer);
 
 		// Container to maintain aspect ratio ofvideo player
 		var vid_container = $("<div>");
 		vidArr.push(vid_container);
-		//vid_container.addClass("col-lg-6");
 		vid_container.css("width", "50%");
 		vid_container.appendTo("#" + currentTab.data("tab"));
 		vid_container.droppable({
@@ -398,9 +442,6 @@ function findStream(streamer) {
 			}
 
 		});
-
-		
-		//vid_container.droppable("disable");
 		vidNum++;
 		var vidEmbed = $("<div>");
 		vidEmbed.attr("id", streamer);
@@ -467,7 +508,7 @@ function findStream(streamer) {
 		}
 	});
 
-	$("#streamer").val("");
+	//$("#streamer").val("");
 	$(".text-status").text("");
 	$("#startStream").text("Watch");
 	$(".green").removeClass("show-status");
@@ -487,7 +528,6 @@ function findChat(streamer) {
 		var query = "http://www.twitch.tv/" + streamer + "/chat";
 
 		var chat_container = $("<div>");
-		//vidArr.push(vid_container);
 		chat_container.addClass("col-lg-6");
 		//vid_container.attr("id", "vid" + vidNum);
 		chat_container.appendTo("#" + currentTab.data("tab"));
@@ -502,8 +542,6 @@ function findChat(streamer) {
 				 return true;
 			}
 		});
-		//chat_container.droppable("disable");
-
 		chatEmbed = $("<div></div>");
 		chatEmbed.addClass("chat " + streamer);
 		chatEmbed.appendTo(chat_container);
@@ -550,6 +588,8 @@ $(".toggle i").on("click", function() {
 	}
 });
 
+// Show clear distinction when aspect ratio is enabled/disabled
+// Displays description on icon hover
 $(document).on({
 	mouseenter: function() {
 		var vid = $(this).parent();
@@ -582,6 +622,7 @@ $(document).on({
 	}
 },".aspect-ratio")
 
+// Allows user to enable/disable the aspect ratio of any stream
 function toggleAspectRatio(videoPlayer, toggle) {
 	var parentWidth = videoPlayer.outerWidth();
 	console.log(parentWidth);
@@ -596,7 +637,6 @@ function toggleAspectRatio(videoPlayer, toggle) {
 		videoPlayer.css("height", "0");
 	}
 	else { // disable aspect ratio
-		//videoPlayer.parent().css("width", "0%");
 		videoPlayer.parent().css("width", parentWidth);
 		videoPlayer.css("padding-bottom", "0%");
 		videoPlayer.height(height);
@@ -604,11 +644,60 @@ function toggleAspectRatio(videoPlayer, toggle) {
 	}
 }
 
-$(".channels").on({
-	click: function() {
-		var selected = $(this);
-		var channelName = selected.data("name");
-		findStream(channelName);
-	}
+// When one of the results under 'Channels' is clicked, display the channel's stream
+// $(".channels").on({
+// 	click: function() {
+// 		var selected = $(this);
+// 		var channelName = selected.data("name");
+// 		findStream(channelName);
+// 	}
 
-}, "div");
+// }, "div");
+
+// Hide the search results window when user clicks anywhere outside that window 
+$("body").on("click", function() {
+	$(".searchResults").css("display", "none");
+});
+
+// Show the search results window only if there is at least one result found
+$("#streamer").on("click", function(event) {
+	event.stopPropagation();
+	var categories = $(".searchResults").children();
+	for(var i = 0; i < categories.length; i++) {
+		if($(categories[i]).is(":empty") == false) {
+			$(".searchResults").css("display", "block");
+			return;
+		}
+	}
+	
+})
+
+function topGames() {
+	var query = "https://api.twitch.tv/kraken/games/top";
+
+	twitchRequest(query).done(function(response) {
+		console.log(response);
+		for(var i = 0; i < 10; i++) {
+			var gameImg = $("<img>");
+			// width = height * 71.58%
+			// large: 272x380
+			// medium: 136x190
+			// small: 52x72
+			var height = 90; // Must be integer
+			var width = Math.floor(height * .7258); // Must be integer
+
+			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
+			var customSize = response.top[i].game.box.template;
+			customSize = customSize.replace("{width}", width);
+			customSize = customSize.replace("{height}", height);
+			var imgsrc = response.top[i].game.box.small;
+			gameImg.attr("src", customSize);
+
+			var gameName = response.top[i].game.name
+			gameImg.attr("title", gameName);
+
+			gameImg.data("name", gameName);
+			gameImg.appendTo(".top-games");
+		}
+	})
+}

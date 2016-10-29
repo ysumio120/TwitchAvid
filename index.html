@@ -19,8 +19,6 @@
 	<!-- Jquery UI -->
 	<script   src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"   integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU="   crossorigin="anonymous"></script>
 
-	
-
 	<!-- Twitch Javascript SDK -->
 	<script src="https://ttv-api.s3.amazonaws.com/twitch.min.js"></script>
 	<script src= "http://player.twitch.tv/js/embed/v1.js"></script>
@@ -35,51 +33,36 @@
 				<label for="streamer">Enter Stream</label>
 				<br>
 				<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
-				<!-- <div class="status"></div> -->
 				<img class="loading" src="assets/images/loading.gif">
 				<img class="green status" src="assets/images/green.png">
 				<img class="red status" src="assets/images/red.png">
 				<span class="text-status"></span>
-				<button id="startStream">Watch</button>
+				<!-- <button id="startStream">Watch</button> -->
 				<div class="searchResults">
-					<div><b>Users</b></div>
 					<div class="channels"></div>
-					<div><b>Games</b></div>
 					<div class="games"></div>
 				</div>
-				<!-- <button class="" id="edit">Edit</button> -->
 				<form action="">
  					<input type="checkbox" name="chat" id="include_chat">
  					<label for="include_chat"> Include chat</label>
 				</form>
 			</div>
-			<!-- <button class="pull-right" id="cancel">Cancel</button>
-			<button class="pull-right" id="delete">Delete</button>
-			<br> -->
-			<div class="col-lg-6">
+			<!-- <div class="col-lg-6">
 				<label for="streamer">Enter Chat</label><br>
 				<input type="text" name="Chat" placeholder="Chat" id="chat"/>
 				<button id="startChat">Chat</button>
 				<div class="error"><span></span></div>
-			</div>
-		<!-- 	<div class="col-lg-2">
-				<i class="fa fa-angle-up" aria-hidden="true"></i>
 			</div> -->
 		</div>
 	</div>
-	<!-- <div class="container">
-		<div class="row">
-			
-		</div>
-	</div> -->
 	<div class="container toggle">
 		<i class="fa fa-chevron-up pull-right" aria-hidden="true"></i>
+	</div>
+	<div class="container top-games">
 	</div>
 	<div class="container tabs">
 		<ul class="nav nav-tabs">
 			<li role="presentation" class="active home"><a href="#">Home</a></li>
-			<!-- <li role="presentation"><a href="#">Tab 1</a></li>
-			<li role="presentation"><a href="#">Tab 2</a></li> -->
 			<li role="presentation" class="addTab"><a href="#"><i class="fa fa-plus-square" aria-hidden="true"></i></a></li>
 		</ul>
 	</div>

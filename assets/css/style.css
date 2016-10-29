@@ -253,15 +253,21 @@ body {
 }
 
 .searchResults {
+	background-color: white;
 	border: 1px solid black;
-	width: 215px;
-	height: 150px;
+	width: 250px;
+	height: 225px;
 	overflow-y: scroll;
+	display: none;
+	z-index: 1;
+	position: absolute;
+	cursor: pointer;
 }
 
-.channels div:hover,
-.games div:hover,
 .results-hover {
 	background-color: rgba(0,0,0,0.3);
-	cursor: pointer;
+}
+
+.top-games img {
+	margin: 3px 10px;
 }
