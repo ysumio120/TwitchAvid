@@ -673,13 +673,14 @@ $("#streamer").on("click", function(event) {
 })
 
 function topGames() {
-	var query = "https://api.twitch.tv/kraken/games/top";
+	var limit = 10; // Default limit 10
+	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
 
 	twitchRequest(query).done(function(response) {
 		console.log(response);
-		for(var i = 0; i < 10; i++) {
+		for(var i = 0; i < limit; i++) {
 			var gameImg = $("<img>");
-			// width = height * 71.58%
+			// width = height * .7158
 			// large: 272x380
 			// medium: 136x190
 			// small: 52x72
@@ -701,3 +702,49 @@ function topGames() {
 		}
 	})
 }
+
+$(".top-games").on("click", "img", function() {
+	$(".live-streams-list").empty();
+	$(".live-streams-list").css("display", "none");
+	var gameName = $(this).data("name");
+	var limit = 25; // Default limit 25
+	var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + gameName + "&limit=" + limit;
+	twitchRequest(query).done(function(response) {
+		console.log(response);
+		for(var i = 0; i < limit; i++) {
+			var streamPreview = $("<img>");		
+			// width = height * 1.7778%
+			// large: 640x360
+			// medium: 320x180
+			// small: 80x45
+			var height = 90; // Must be integer
+			var width = Math.floor(height * 1.7778); // Must be integer
+
+			// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
+			var customSize = response.streams[i].preview.template;
+			customSize = customSize.replace("{width}", width);
+			customSize = customSize.replace("{height}", height);
+			streamPreview.attr("src", customSize);
+
+			var streamerName = response.streams[i].channel.name;
+			streamPreview.data("name", streamerName);
+			streamPreview.appendTo(".live-streams-list");
+//----------------------------------------------------------------------------------------------------------------
+			// var streamPreview = new Image();
+			// var height = 90; // Must be integer
+			// var width = Math.floor(height * 1.7778); // Must be integer
+
+			// // e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
+			// var customSize = response.streams[i].preview.template;
+			// customSize = customSize.replace("{width}", width);
+			// customSize = customSize.replace("{height}", height);
+			// streamPreview.onload = function() {
+			// 	var jquery = $(streamPreview).clone();
+			// 	jquery.appendTo(".live-streams-list");
+			// };
+			// streamPreview.src = customSize;
+//---------------------------------------------------------------------------------------------------------------
+		}
+		$(".live-streams-list").css("display", "block");
+	})
+})
