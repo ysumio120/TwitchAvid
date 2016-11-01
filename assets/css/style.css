@@ -1,11 +1,6 @@
 body {
 	overflow-y: scroll;
 }
-.tabs {
-	width: 80%;
-	margin-top: 5px;
-	margin-bottom: 10px;
-}
 
 .vid, 
 .chat,
@@ -34,8 +29,8 @@ body {
 	color: white;
 	position: absolute;
 	z-index: 1;
-    bottom: 13px;
-    left: 48%;
+    bottom: 2px;
+    left: 2%;
     font-size: 150%;
     display: none;
     padding: 2px 2px;
@@ -54,8 +49,8 @@ body {
 	color: white;
 	position: absolute;
 	z-index: 1;
-    bottom: 14px;
-    left: 53%;
+    bottom: 3px;
+    left: 36%;
     width: 22px;
     display: none;
     padding: 2px 2px;
@@ -84,13 +79,12 @@ body {
 .vid:hover .fa-times,
 .vid:hover .aspect-ratio,
 .vid:hover .tools-background {
-	display: block;
+	display: inline-block;
 }
 
 .ui-droppable {
 	padding-top: 15px;
 	padding-bottom: 15px;
-	/*visibility: hidden;*/
 	display: block;
 	float: left;
 }
@@ -98,10 +92,6 @@ body {
 .ui-draggable {
 	border: 2px dashed transparent;
 }
-
-/*.ui-droppable-disabled {
-	visibility: visible;
-}*/
 
 .ui-droppable-active {
 	visibility: visible;
@@ -144,10 +134,10 @@ body {
 	z-index: 1;
 	font-size: 11px;
 	color: white;
-    left: -19.5%;
-    bottom: 37px;
+    left: -4.5%;
+    bottom: 39px;
     background-color: rgba(0,0,0,0.7);
-    padding: 4px 5px;
+    padding: 3px 5px;
 	display: none;
 }
 
@@ -157,15 +147,44 @@ body {
     z-index: 1;
     font-size: 11px;
     color: white;
-    left: 50.5%;
-    bottom: 50px;
+    left: 15.5%;
+    bottom: 39px;
     background-color: rgba(0,0,0,0.7);
-    padding: 2px 5px;
+    padding: 3px 5px;
 	display: none;
 }
 
-.vid .fa-arrows:hover .fa-arrows-text {
+.tools-background {
+    height: 29px;
+    width: 87px;
+    position: absolute;
+    background-color: rgba(0,0,0,0.5);
+    z-index: 1;
+    bottom: 11px;
+    left: 46%;
+    display: none;
+}
+
+.tools-background > div {
+	display: inline-block;
+}
+
+.tools-background > div > span {
+	white-space: nowrap;
+}
+
+.vid .fa-arrows:hover ~ .fa-arrows-text {
     display: inline-block;
+}
+
+.vid .aspect-ratio:hover ~ .aspect-ratio-text {
+	display: inline-block;
+}
+
+.tabs {
+	width: 80%;
+	margin-top: 5px;
+	margin-bottom: 10px;
 }
 
 .nav-tabs {
@@ -201,14 +220,6 @@ body {
 	color: red;
 }
 
-/*.status {
-	display: inline-block;
-	border-radius: 50%;
-	background-color: red;
-	width: 20px;
-	height: 20px;
-}*/
-
 .loading,
 .status {
 	width: 24px;
@@ -231,17 +242,6 @@ body {
 .fa.fa-chevron-up:hover,
 .fa.fa-chevron-down:hover {
 	color: black;
-}
-
-.tools-background {
-    height: 29px;
-    width: 87px;
-    position: absolute;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1;
-    bottom: 11px;
-    left: 46%;
-    display: none;
 }
 
 .resizable-overlay {
@@ -268,12 +268,25 @@ body {
 	background-color: rgba(0,0,0,0.3);
 }
 
+.top-games {
+	display: none;
+}
+
 .top-games img {
 	margin: 3px 10px;
 	cursor: pointer;
 }
 
-.live-streams-list img {
+/*.live-streams-list {
+	overflow-y: scroll;
+}*/
+
+.live-streams-list > div {
 	margin: 6px 15px;
+	display: inline-block;
 	cursor: pointer;
+}
+
+.live-streams-list div:hover {
+	opacity: 0.8;
 }

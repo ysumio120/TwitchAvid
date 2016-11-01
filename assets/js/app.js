@@ -39,7 +39,6 @@ var draggableConfig = {
 var resizableConfig = {
 	handles: "se",
 	start: function() {
-		//console.log("Prev Doc: " + originalDocument);
 		var vidParent = $(this).parent();
 		vidParent.css("width", "");
 		
@@ -151,8 +150,32 @@ $(document).ready(function() {
 
 	console.log(window.innerHeight);
 	menuHeight();
-	topGames();
+	//topGames();
+	var limit = 10; // Default limit 10
+	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
+	preloadImages("top-games", query,
+		function(imgArr) {
+			for(var i = 0; i < imgArr.length; i++) {
+				$(imgArr[i]).appendTo(".top-games");
+				//console.log();
+			}
+			$(".top-games").css("display", "block");
+		}, 
+		function(data, imgElem) {
+			var height = 90; // Must be integer
+			var width = Math.floor(height * .7258); // Must be integer
 
+			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
+			var customSize = data.game.box.template;
+			customSize = customSize.replace("{width}", width);
+			customSize = customSize.replace("{height}", height);
+			var imgsrc = data.game.box.small;
+			$(imgElem).attr("src", customSize);
+
+			var gameName = data.game.name
+			$(imgElem).attr("title", gameName);
+			$(imgElem).data("name", gameName);
+	})
 });
 
 /* On success drop, 
@@ -188,10 +211,9 @@ $("#streamer").on("keydown", function(event) {
 				var parentCategory = hovered.parent();
 				if(parentCategory.hasClass("channels")) {
 					findStream($(".results-hover").data("name"));
-
 				}
 				else if(parentCategory.hasClass("games")) {
-
+					preloadImages($(".results-hover").data("name"));
 				}
 			}
 			break;
@@ -219,7 +241,6 @@ $("#streamer").on("keydown", function(event) {
 				}while(prevCategory.length != 0);
 			}
 			console.log(prevSibling);
-			break;
 			break;
 		// Down arrow	
 		case 40:
@@ -279,9 +300,39 @@ $(".searchResults div").on({
 	},
 	click: function() {
 		var selected = $(this);
-		var channelName = selected.data("name");
+		var name = selected.data("name");
 		if(selected.parent().hasClass("channels")){	
-			findStream(channelName);
+			findStream(name);
+		}
+		else if(selected.parent().hasClass("games")) {
+			$(".live-streams-list").empty();
+			$(".live-streams-list").css("display", "none");
+			var limit = 25; // Default limit 25
+			var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + name + "&limit=" + limit;
+			preloadImages("game-streams", query, 
+				function(imgArr) {
+					for(var i = 0; i < imgArr.length; i++) {	
+							console.log(imgArr[i]);
+							var liveStreamer = $("<div>");
+							liveStreamer.append($(imgArr[i]));
+							var label = $("<div>").text($(imgArr[i]).data("display_name"));
+							liveStreamer.append(label);
+							liveStreamer.appendTo(".live-streams-list");
+					}
+					$(".live-streams-list").css("display", "block");
+			}, 
+				function(data, imgElem) {
+					var height = 90; // Must be integer
+					var width = Math.floor(height * 1.7778); // Must be integer
+
+					// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
+					var customSize = data.preview.template;
+					customSize = customSize.replace("{width}", width);
+					customSize = customSize.replace("{height}", height);
+					imgElem.src = customSize;
+					$(imgElem).data("name", data.channel.name);
+					$(imgElem).data("display_name", data.channel.display_name);
+			});
 		}
 	}
 }, "div");
@@ -319,6 +370,7 @@ $(document).on("click", ".fa-times", function() {
 // Toggle tabs when clicked and display content
 // Clicking the 'plus' tab will create a new tab
 $(document).on("click", ".nav-tabs li", function() {
+	console.log("Trying to add");
 	currentTab.removeClass("active");
 	var selectedTab = $(this);
 	
@@ -335,7 +387,7 @@ $(document).on("click", ".nav-tabs li", function() {
 		selectedTab = newTab;
 		selectedTab.addClass("active");
 		currentTab = selectedTab;
-		return;
+		return false;
 	}
 	
 	selectedTab.addClass("active");
@@ -346,6 +398,7 @@ $(document).on("click", ".nav-tabs li", function() {
 		$(".player").find(".content.content-active").removeClass("content-active");
 		$("#" + correspondingContent).addClass("content-active");
 	}
+	return false;
 });
 
 
@@ -369,6 +422,7 @@ $(document).on("keypress", "a input", function(event) {
 		console.log($(".player").find(".content.content-active").attr("id"));
 		$(".player").find(".content.content-active").removeClass("content-active");
 		contentWrapper.addClass("content-active");
+		return false;
 	}
 });
 
@@ -444,7 +498,7 @@ function findStream(streamer) {
 		});
 		vidNum++;
 		var vidEmbed = $("<div>");
-		vidEmbed.attr("id", streamer);
+		vidEmbed.attr("id", streamer + "-" + currentTab.data("tab"));
 		vidEmbed.addClass("vid");
 		vidEmbed.data("name", streamer);
 		vidEmbed.appendTo(vid_container);
@@ -466,27 +520,29 @@ function findStream(streamer) {
 		tools.appendTo(vidEmbed);
 
 		// Icon to move/drag stream
+		var moveDiv = $("<div>");
+		moveDiv.appendTo(tools);
 		var move = $("<i></i>");
 		move.attr("aria-hidden", true);
 		move.addClass("fa fa-arrows");
-		move.appendTo(vidEmbed);
-
+		move.appendTo(moveDiv);
 		var moveText = $("<span></span>");
 		moveText.text("Move");
 		moveText.addClass("fa-arrows-text");
-		moveText.appendTo(move);
+		moveText.appendTo(moveDiv);
 
 		// Icon to enable/disable aspect ratio
+		var arDiv = $("<div>");
+		arDiv.appendTo(tools);
 		var aspect_ratio = $("<img></img>");
 		aspect_ratio.attr("src", "assets/images/aspect_ratio_16_9_red.png");
 		aspect_ratio.addClass("aspect-ratio");
 		aspect_ratio.data("enable", true);
-		aspect_ratio.appendTo(vidEmbed);
-
+		aspect_ratio.appendTo(arDiv);
 		var arText = $("<span></span>");
 		arText.text("Disable Aspect Ratio");
 		arText.addClass("aspect-ratio-text");
-		arText.appendTo(vidEmbed);
+		arText.appendTo(arDiv);
 
 		// Configure options for iframe embed
 		var options = {
@@ -494,7 +550,7 @@ function findStream(streamer) {
 		};
 
 		// Create interactive Iframe Embed
-		var player = new Twitch.Player(streamer, options);
+		var player = new Twitch.Player(streamer + "-" + currentTab.data("tab"), options);
 		
 		// Create draggable object
 		vidEmbed.draggable(draggableConfig);
@@ -591,19 +647,10 @@ $(".toggle i").on("click", function() {
 // Show clear distinction when aspect ratio is enabled/disabled
 // Displays description on icon hover
 $(document).on({
-	mouseenter: function() {
-		var vid = $(this).parent();
-		var text = vid.children(".aspect-ratio-text");
-		text.css("display", "inline-block");			
-	},
-	mouseleave: function() {
-		var vid = $(this).parent();
-		var text = vid.children(".aspect-ratio-text");
-		text.css("display", "none");
-	},
 	click: function() {
-		var vid = $(this).parent();
-		var text = vid.children(".aspect-ratio-text");
+		var parent = $(this).parent();
+		var text = parent.children(".aspect-ratio-text");
+		var vid = $(this).closest(".vid");
 
 		var icon = $(this);
 		var toggle = icon.data("enable");
@@ -644,16 +691,6 @@ function toggleAspectRatio(videoPlayer, toggle) {
 	}
 }
 
-// When one of the results under 'Channels' is clicked, display the channel's stream
-// $(".channels").on({
-// 	click: function() {
-// 		var selected = $(this);
-// 		var channelName = selected.data("name");
-// 		findStream(channelName);
-// 	}
-
-// }, "div");
-
 // Hide the search results window when user clicks anywhere outside that window 
 $("body").on("click", function() {
 	$(".searchResults").css("display", "none");
@@ -666,85 +703,145 @@ $("#streamer").on("click", function(event) {
 	for(var i = 0; i < categories.length; i++) {
 		if($(categories[i]).is(":empty") == false) {
 			$(".searchResults").css("display", "block");
-			return;
+			return false;
 		}
 	}
 	
 })
 
-function topGames() {
-	var limit = 10; // Default limit 10
-	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
-
-	twitchRequest(query).done(function(response) {
-		console.log(response);
-		for(var i = 0; i < limit; i++) {
-			var gameImg = $("<img>");
-			// width = height * .7158
-			// large: 272x380
-			// medium: 136x190
-			// small: 52x72
-			var height = 90; // Must be integer
-			var width = Math.floor(height * .7258); // Must be integer
-
-			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
-			var customSize = response.top[i].game.box.template;
-			customSize = customSize.replace("{width}", width);
-			customSize = customSize.replace("{height}", height);
-			var imgsrc = response.top[i].game.box.small;
-			gameImg.attr("src", customSize);
-
-			var gameName = response.top[i].game.name
-			gameImg.attr("title", gameName);
-
-			gameImg.data("name", gameName);
-			gameImg.appendTo(".top-games");
-		}
-	})
-}
-
 $(".top-games").on("click", "img", function() {
 	$(".live-streams-list").empty();
 	$(".live-streams-list").css("display", "none");
-	var gameName = $(this).data("name");
+	var game = $(this).data("name");
 	var limit = 25; // Default limit 25
-	var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + gameName + "&limit=" + limit;
-	twitchRequest(query).done(function(response) {
-		console.log(response);
-		for(var i = 0; i < limit; i++) {
-			var streamPreview = $("<img>");		
-			// width = height * 1.7778%
-			// large: 640x360
-			// medium: 320x180
-			// small: 80x45
+	var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + game + "&limit=" + limit;
+	// preloadImages2(query, function(data, imgElem) {
+	// 	var height = 90; // Must be integer
+	// 		var width = Math.floor(height * 1.7778); // Must be integer
+
+	// 		// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
+	// 		var customSize = data.preview.template;
+	// 		customSize = customSize.replace("{width}", width);
+	// 		customSize = customSize.replace("{height}", height);
+	// 		imgElem.src = customSize;
+	// 		$(imgElem).data("name", data.channel.name);
+	// 		$(imgElem).data("display_name", data.channel.display_name);
+	// })
+	preloadImages("game-streams", query, 
+		function(imgArr) {
+			for(var i = 0; i < imgArr.length; i++) {	
+					console.log(imgArr[i]);
+					var liveStreamer = $("<div>");
+					liveStreamer.append($(imgArr[i]));
+					var label = $("<div>").text($(imgArr[i]).data("display_name"));
+					liveStreamer.append(label);
+					liveStreamer.appendTo(".live-streams-list");
+			}
+			$(".live-streams-list").css("display", "block");
+	}, 
+		function(data, imgElem) {
 			var height = 90; // Must be integer
 			var width = Math.floor(height * 1.7778); // Must be integer
 
 			// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
-			var customSize = response.streams[i].preview.template;
+			var customSize = data.preview.template;
 			customSize = customSize.replace("{width}", width);
 			customSize = customSize.replace("{height}", height);
-			streamPreview.attr("src", customSize);
+			imgElem.src = customSize;
+			$(imgElem).data("name", data.channel.name);
+			$(imgElem).data("display_name", data.channel.display_name);
+	});
 
-			var streamerName = response.streams[i].channel.name;
-			streamPreview.data("name", streamerName);
-			streamPreview.appendTo(".live-streams-list");
-//----------------------------------------------------------------------------------------------------------------
-			// var streamPreview = new Image();
-			// var height = 90; // Must be integer
-			// var width = Math.floor(height * 1.7778); // Must be integer
-
-			// // e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
-			// var customSize = response.streams[i].preview.template;
-			// customSize = customSize.replace("{width}", width);
-			// customSize = customSize.replace("{height}", height);
-			// streamPreview.onload = function() {
-			// 	var jquery = $(streamPreview).clone();
-			// 	jquery.appendTo(".live-streams-list");
-			// };
-			// streamPreview.src = customSize;
-//---------------------------------------------------------------------------------------------------------------
-		}
-		$(".live-streams-list").css("display", "block");
-	})
+	return false;
 })
+
+function preloadImages(queryType, query, onloadFunction, size_data) {
+	twitchRequest(query).done(function(response) {
+		var responseArr = [];
+		switch(queryType) {
+			case "top-games":
+				responseArr = response.top;
+				break;
+			case "game-streams":
+				responseArr = response.streams;
+				break;
+		}
+
+		console.log(response);
+		var loadCount = 0;
+		var loadedImages = [];
+		console.log(new Image());
+		for(var i = 0; i < responseArr.length; i++) {
+			loadedImages[i] = new Image();
+			loadedImages[i].onload = function() {
+				loadCount++;
+				if(loadCount == responseArr.length) {
+					onloadFunction(loadedImages);
+				}
+			}
+			loadedImages[i].onerror = function() {
+				loadCount++;
+				loadedImages.splice(loadedImages.indexOf(this), 1);
+				if(loadCount == responseArr.length) {
+					onloadFunction(loadedImages);
+				}
+
+			}
+			size_data(responseArr[i], loadedImages[i]);
+		}			
+	})
+}
+
+$(".live-streams-list").on("click", "div", function() {
+	var channel = $(this).children("img").data("name");
+	findStream(channel);
+	return false;
+})
+
+// CURRENTLY NOT USING
+//---------------------------------------------------------------------------------------------------
+function preloadImages2(query, size_data) {
+	twitchRequest(query).done(function(response) {
+		var responseArr = [];
+		// switch(queryType) {
+		// 	case "top-games":
+		// 		responseArr = response.top;
+		// 		break;
+		// 	case "game-streams":
+		 		responseArr = response.streams;
+		// 		break;
+		// }
+
+		console.log(response);
+		var loadCount = 0;
+		var loadedImages = [];
+		var images = [];
+		console.log(new Image());
+		for(var i = 0; i < responseArr.length; i++) {
+				images[i] = new Image();
+				console.log(images[i]);
+				var liveStreamer = $("<div>");
+				liveStreamer.append($(images[i]));
+				var label = $("<div>").text($(images[i]).data("display_name"));
+				liveStreamer.append(label);
+				liveStreamer.appendTo(".live-streams-list");
+				loadedImages[i] =  liveStreamer;
+			
+			images[i].onload = function() {
+				loadCount++;
+				if(loadCount == responseArr.length) {
+					$(".live-streams-list").css("display", "block");
+				}
+			};
+			images[i].onerror = function() {
+				loadCount++;
+				loadedImages[images.indexOf(this)].remove();
+				if(loadCount == responseArr.length) {
+					$(".live-streams-list").css("display", "block");
+				}
+
+			};
+			size_data(responseArr[i], images[i]);
+		}			
+	})
+}
