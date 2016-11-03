@@ -714,7 +714,7 @@ $("#streamer").on("click", function(event) {
 })
 
 $(".top-games").on("click", "img", function() {
-	$(".live-streams-list").empty();
+	$(".live-streams-list p").empty();
 	$(".live-streams-list").css("display", "none");
 	var game = $(this).data("name");
 	var limit = 25; // Default limit 25
@@ -806,6 +806,19 @@ $(".live-streams-list").on("click", "div", function() {
 	var channel = $(this).children("img").data("name");
 	findStream(channel);
 	return false;
+});
+
+$(".live-streams-list").scroll(function(event) {
+	var height = $(this).height();
+	var loadingHeight = $(this)[0].scrollHeight - $(this).find("img").height();
+	var currentScrolledHeight = height + $(this).scrollTop();
+	if(currentScrolledHeight > loadingHeight) {
+		var nextLoad = $(this).data("nextLoad");
+		console.log(nextLoad);
+		console.log("Need to Load Next Set");
+	}
+	//console.log($(this)[0].scrollHeight);
+	//console.log($(this).scrollTop());
 })
 
 // CURRENTLY NOT USING

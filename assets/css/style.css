@@ -287,8 +287,8 @@ body {
 	display: inline-block;
 	cursor: pointer;
 }
-
-.live-streams-list div:hover {
+.top-games img:hover,
+.live-streams-list > div:hover {
 	opacity: 0.8;
 }
 
