@@ -277,16 +277,21 @@ body {
 	cursor: pointer;
 }
 
-/*.live-streams-list {
+.live-streams-list {
 	overflow-y: scroll;
-}*/
+	height: 650px;
+}
 
 .live-streams-list > div {
-	margin: 6px 15px;
+	/*margin: 6px 10px;*/
 	display: inline-block;
 	cursor: pointer;
 }
 
 .live-streams-list div:hover {
 	opacity: 0.8;
+}
+
+.live-streams-list > div > img {
+	width: 100%;
 }

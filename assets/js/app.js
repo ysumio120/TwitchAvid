@@ -154,10 +154,12 @@ $(document).ready(function() {
 	var limit = 10; // Default limit 10
 	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
 	preloadImages("top-games", query,
-		function(imgArr) {
+		function(data, imgArr) {
 			for(var i = 0; i < imgArr.length; i++) {
+				var gameName = data.top[i].game.name
+				$(imgArr[i]).attr("title", gameName);
+				$(imgArr[i]).data("name", gameName);
 				$(imgArr[i]).appendTo(".top-games");
-				//console.log();
 			}
 			$(".top-games").css("display", "block");
 		}, 
@@ -171,10 +173,6 @@ $(document).ready(function() {
 			customSize = customSize.replace("{height}", height);
 			var imgsrc = data.game.box.small;
 			$(imgElem).attr("src", customSize);
-
-			var gameName = data.game.name
-			$(imgElem).attr("title", gameName);
-			$(imgElem).data("name", gameName);
 	})
 });
 
@@ -310,28 +308,34 @@ $(".searchResults div").on({
 			var limit = 25; // Default limit 25
 			var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + name + "&limit=" + limit;
 			preloadImages("game-streams", query, 
-				function(imgArr) {
+				function(data, imgArr) {
 					for(var i = 0; i < imgArr.length; i++) {	
 							console.log(imgArr[i]);
 							var liveStreamer = $("<div>");
+							liveStreamer.addClass("col-lg-4 col-md-3");
+
+							$(imgArr[i]).data("name", data.streams[i].channel.name);
+							$(imgArr[i]).data("display_name", data.streams[i].channel.display_name);
 							liveStreamer.append($(imgArr[i]));
+
 							var label = $("<div>").text($(imgArr[i]).data("display_name"));
 							liveStreamer.append(label);
 							liveStreamer.appendTo(".live-streams-list");
 					}
 					$(".live-streams-list").css("display", "block");
-			}, 
+					$(".live-streams-list").data("nextLoad", data._links.next);
+				}, 
 				function(data, imgElem) {
-					var height = 90; // Must be integer
+					var height = 700; // Must be integer
 					var width = Math.floor(height * 1.7778); // Must be integer
 
 					// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
 					var customSize = data.preview.template;
 					customSize = customSize.replace("{width}", width);
 					customSize = customSize.replace("{height}", height);
-					imgElem.src = customSize;
-					$(imgElem).data("name", data.channel.name);
-					$(imgElem).data("display_name", data.channel.display_name);
+					// imgElem.src = customSize;
+					imgElem.src = data.preview.large;
+					$(imgElem).data("template", data.preview.template);
 			});
 		}
 	}
@@ -728,34 +732,40 @@ $(".top-games").on("click", "img", function() {
 	// 		$(imgElem).data("display_name", data.channel.display_name);
 	// })
 	preloadImages("game-streams", query, 
-		function(imgArr) {
+		function(data, imgArr) {
 			for(var i = 0; i < imgArr.length; i++) {	
 					console.log(imgArr[i]);
 					var liveStreamer = $("<div>");
+					liveStreamer.addClass("col-lg-4 col-md-3");
+
+					$(imgArr[i]).data("name", data.streams[i].channel.name);
+					$(imgArr[i]).data("display_name", data.streams[i].channel.display_name);
 					liveStreamer.append($(imgArr[i]));
+
 					var label = $("<div>").text($(imgArr[i]).data("display_name"));
 					liveStreamer.append(label);
 					liveStreamer.appendTo(".live-streams-list");
 			}
 			$(".live-streams-list").css("display", "block");
-	}, 
+			$(".live-streams-list").data("nextLoad", data._links.next);
+		}, 
 		function(data, imgElem) {
-			var height = 90; // Must be integer
+			var height = 700; // Must be integer
 			var width = Math.floor(height * 1.7778); // Must be integer
 
 			// e.g. https://static-cdn.jtvnw.net/previews-ttv/live_user_nightblue3-{width}x{height}.jpg
 			var customSize = data.preview.template;
 			customSize = customSize.replace("{width}", width);
 			customSize = customSize.replace("{height}", height);
-			imgElem.src = customSize;
-			$(imgElem).data("name", data.channel.name);
-			$(imgElem).data("display_name", data.channel.display_name);
+			// imgElem.src = customSize;
+			imgElem.src = data.preview.large;
+			$(imgElem).data("template", data.preview.template);
 	});
 
 	return false;
 })
 
-function preloadImages(queryType, query, onloadFunction, size_data) {
+function preloadImages(queryType, query, loadComplete, srcLoad) {
 	twitchRequest(query).done(function(response) {
 		var responseArr = [];
 		switch(queryType) {
@@ -776,18 +786,18 @@ function preloadImages(queryType, query, onloadFunction, size_data) {
 			loadedImages[i].onload = function() {
 				loadCount++;
 				if(loadCount == responseArr.length) {
-					onloadFunction(loadedImages);
+					loadComplete(response, loadedImages);
 				}
 			}
 			loadedImages[i].onerror = function() {
 				loadCount++;
 				loadedImages.splice(loadedImages.indexOf(this), 1);
 				if(loadCount == responseArr.length) {
-					onloadFunction(loadedImages);
+					loadComplete(response, loadedImages);
 				}
 
 			}
-			size_data(responseArr[i], loadedImages[i]);
+			srcLoad(responseArr[i], loadedImages[i]);
 		}			
 	})
 }
