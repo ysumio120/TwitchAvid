@@ -82,20 +82,22 @@ $(document).ready(function() {
     	// user is currently logged in
     		console.log("Someone already logged in")
   		}
-  		$('.twitch-connect').click(function() {
-			console.log("CLICK");
-  			Twitch.getStatus(function(err, status) {
-				if (status.authenticated) {
-			    	console.log('authenticated!');
-			  	}
-			  	else console.log('not authenticated');
-			});
-  			Twitch.login({
-    			scope: ['user_read', 'channel_read', 'user_subscriptions']
-  			});
+  	
+  		var token = Twitch.getToken();
+		alert(token);
+  	});	
+  	$('.twitch-connect').click(function() {
+		console.log("CLICK");
+			Twitch.getStatus(function(err, status) {
+			if (status.authenticated) {
+		    	console.log('authenticated!');
+		  	}
+		  	else console.log('not authenticated');
 		});
-
-  	});
+			Twitch.login({
+			scope: ['user_read', 'channel_read', 'user_subscriptions']
+			});
+	});
   	Twitch.getStatus(function(err, status) {
 		if (status.authenticated) {
 	    	console.log('authenticated!');

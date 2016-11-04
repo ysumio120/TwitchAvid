@@ -70,6 +70,7 @@ var menuHeight = function() {
     }, 50);
 };
 
+// https://api.twitch.tv/kraken/oauth2/authorize?response_type=token &client_id=q0ojsiq3xgiqjopism2gu3z35py99jg&redirect_uri=https://google.com&scope=user_read channel_read user_subscriptions
 $(document).ready(function() {
 	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
     // the sdk is now loaded
@@ -81,8 +82,25 @@ $(document).ready(function() {
     	// user is currently logged in
     		console.log("Someone already logged in")
   		}
-
-  	});
+  	
+  		var token = Twitch.getToken();
+		alert(token);
+		twitchRequestOAUTH(token).done(function(response) {
+			console.log(response);
+		})
+  	});	
+  	$('.twitch-connect').click(function() {
+		console.log("CLICK");
+			Twitch.getStatus(function(err, status) {
+			if (status.authenticated) {
+		    	console.log('authenticated!');
+		  	}
+		  	else console.log('not authenticated');
+		});
+			Twitch.login({
+			scope: ['user_read', 'channel_read', 'user_subscriptions']
+			});
+	});
   	Twitch.getStatus(function(err, status) {
 		if (status.authenticated) {
 	    	console.log('authenticated!');
@@ -117,11 +135,10 @@ $(document).ready(function() {
 	})
 });
 
-$('.twitch-connect').click(function() {
-  Twitch.login({
-    scope: ['user_read', 'channel_read', 'user_subscriptions']
-  });
+Twitch.logout(function(error) {
+    // the user is now logged out
 });
+
 
 function searchInput() {
 	clearTimeout(timeout);
@@ -465,6 +482,25 @@ function twitchRequest(query) {
 
 }
 
+function twitchRequestOAUTH(oauthToken) {
+	var promise = $.ajax({
+		url: "https://api.twitch.tv/kraken", 
+		method: 'GET', 
+		headers: {
+			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			"Authrorization": "OAuth " + oauthToken
+		},
+		error : function(jqXHR, textStatus, errorThrown) { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+   				console.log('There was a 404 error.');
+			}
+		}
+	});
+
+	return promise;
+
+}
+
 function findStream(streamer) {
 
 	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
@@ -533,7 +569,7 @@ function findStream(streamer) {
 		var arDiv = $("<div>");
 		arDiv.appendTo(tools);
 		var aspect_ratio = $("<img></img>");
-		aspect_ratio.attr("src", "images/aspect_ratio_16_9_red.png");
+		aspect_ratio.attr("src", "/images/aspect_ratio_16_9_red.png");
 		aspect_ratio.addClass("aspect-ratio");
 		aspect_ratio.data("enable", true);
 		aspect_ratio.appendTo(arDiv);
@@ -654,13 +690,13 @@ $(document).on({
 		var toggle = icon.data("enable");
 		if(toggle) {
 			icon.data("enable", false);
-			icon.attr("src", "images/aspect_ratio_16_9.png");
+			icon.attr("src", "/images/aspect_ratio_16_9.png");
 			text.text("Enable Aspect Ratio");
 			toggleAspectRatio(vid, false);
 		}
 		else {
 			icon.data("enable", true);
-			icon.attr("src", "images/aspect_ratio_16_9_red.png");
+			icon.attr("src", "/images/aspect_ratio_16_9_red.png");
 			text.text("Disable Aspect Ratio");
 			toggleAspectRatio(vid, true);	
 		}
