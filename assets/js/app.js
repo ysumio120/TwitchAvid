@@ -518,7 +518,7 @@ function findStream(streamer) {
 		var arDiv = $("<div>");
 		arDiv.appendTo(tools);
 		var aspect_ratio = $("<img></img>");
-		aspect_ratio.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+		aspect_ratio.attr("src", "images/aspect_ratio_16_9_red.png");
 		aspect_ratio.addClass("aspect-ratio");
 		aspect_ratio.data("enable", true);
 		aspect_ratio.appendTo(arDiv);
@@ -639,13 +639,13 @@ $(document).on({
 		var toggle = icon.data("enable");
 		if(toggle) {
 			icon.data("enable", false);
-			icon.attr("src", "assets/images/aspect_ratio_16_9.png");
+			icon.attr("src", "images/aspect_ratio_16_9.png");
 			text.text("Enable Aspect Ratio");
 			toggleAspectRatio(vid, false);
 		}
 		else {
 			icon.data("enable", true);
-			icon.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+			icon.attr("src", "images/aspect_ratio_16_9_red.png");
 			text.text("Disable Aspect Ratio");
 			toggleAspectRatio(vid, true);	
 		}
