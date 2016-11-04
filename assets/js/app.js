@@ -484,7 +484,7 @@ function twitchRequest(query) {
 
 function twitchRequestOAUTH(oauthToken) {
 	var promise = $.ajax({
-		url: "https://api.twitch.tv/kraken", 
+		url: "https://api.twitch.tv/kraken/user", 
 		method: 'GET', 
 		headers: {
 			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
