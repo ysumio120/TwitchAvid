@@ -70,6 +70,44 @@ var menuHeight = function() {
     }, 50);
 };
 
+$(document).ready(function() {
+	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
+    // the sdk is now loaded
+  	});
+	console.log(window.innerHeight);
+	menuHeight();
+	//topGames();
+	var limit = 10; // Default limit 10
+	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
+	preloadImages("top-games", query,
+		function(data, imgArr) {
+			for(var i = 0; i < imgArr.length; i++) {
+				var gameName = data.top[i].game.name
+				$(imgArr[i]).attr("title", gameName);
+				$(imgArr[i]).data("name", gameName);
+				$(imgArr[i]).appendTo(".top-games");
+			}
+			$(".top-games").css("display", "block");
+		}, 
+		function(data, imgElem) {
+			var height = 90; // Must be integer
+			var width = Math.floor(height * .7258); // Must be integer
+
+			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
+			var customSize = data.game.box.template;
+			customSize = customSize.replace("{width}", width);
+			customSize = customSize.replace("{height}", height);
+			var imgsrc = data.game.box.small;
+			$(imgElem).attr("src", customSize);
+	})
+});
+
+$('.twitch-connect').click(function() {
+  Twitch.login({
+    scope: ['user_read', 'channel_read', 'user_subscriptions']
+  });
+});
+
 function searchInput() {
 	clearTimeout(timeout);
 	$(".text-status").text("");
@@ -145,36 +183,6 @@ function searchInput() {
 		});
 	}, 400);
 }
-
-$(document).ready(function() {
-
-	console.log(window.innerHeight);
-	menuHeight();
-	//topGames();
-	var limit = 10; // Default limit 10
-	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
-	preloadImages("top-games", query,
-		function(data, imgArr) {
-			for(var i = 0; i < imgArr.length; i++) {
-				var gameName = data.top[i].game.name
-				$(imgArr[i]).attr("title", gameName);
-				$(imgArr[i]).data("name", gameName);
-				$(imgArr[i]).appendTo(".top-games");
-			}
-			$(".top-games").css("display", "block");
-		}, 
-		function(data, imgElem) {
-			var height = 90; // Must be integer
-			var width = Math.floor(height * .7258); // Must be integer
-
-			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
-			var customSize = data.game.box.template;
-			customSize = customSize.replace("{width}", width);
-			customSize = customSize.replace("{height}", height);
-			var imgsrc = data.game.box.small;
-			$(imgElem).attr("src", customSize);
-	})
-});
 
 /* On success drop, 
  * 	Append draggable element
