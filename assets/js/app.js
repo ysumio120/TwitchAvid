@@ -785,6 +785,10 @@ function streamListLoad(query) {
 			$(imgElem).data("template", data.preview.template);
 	})
 }
+
+function login() {
+	
+}
 // CURRENTLY NOT USING
 //---------------------------------------------------------------------------------------------------
 function preloadImages2(query, size_data) {
