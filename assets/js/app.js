@@ -70,6 +70,91 @@ var menuHeight = function() {
     }, 50);
 };
 
+$(document).ready(function() {
+	var token;
+	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
+    // the sdk is now loaded
+    	if (error) {
+    	// error encountered while loading
+   			console.log(error);
+  		}
+  		if (status.authenticated) {
+    	// user is currently logged in
+    		console.log("Someone already logged in");
+    		token = Twitch.getToken();
+    		twitchRequestUserInfo(token).done(function(response) {
+				console.log(response);
+				var username = response.display_name;
+				$("#loggedInUser").text(username).css("display", "inline-block");
+				$("#logoutBtn").css("display", "inline-block");
+			});
+			twitchRequestFollowers(token).done(function(response) {
+				console.log(response);
+			})
+  		}
+  		else {
+  			$(".twitch-connect").css("display", "inline-block");
+  		}
+  	
+	  	$('.twitch-connect').click(function() {
+				twitchLogin();
+		})
+  	});	
+  	
+  	// Cannot use Twitch.login() from Twitch SDK
+  	// Builds URL with parameter force_verify set to 'true' (important)
+  	// Ensures authorization for every login attempt
+	function twitchLogin() {
+		var headers = {
+			response_type: "token",
+			client_id: "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			redirect_uri: "https://twitchavid-development.herokuapp.com/",
+			scope: "user_read channel_read user_subscriptions",
+			force_verify: "true"
+		}
+		
+		var url = "https://api.twitch.tv/kraken/oauth2/authorize?" + decodeURIComponent($.param(headers));
+		window.location = url;
+	}
+
+	$("#logoutBtn").click(function() {
+		Twitch.logout(function(error) {
+    		if(error) throw error;
+    		$("#loggedInUser").empty();
+    		$("#loggedInUser").css("display", "none");
+    		$("#logoutBtn").css("display", "none");
+			$(".twitch-connect").css("display", "inline-block");
+		});
+	});
+
+	console.log(window.innerHeight);
+	menuHeight();
+	//topGames();
+	var limit = 10; // Default limit 10
+	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
+	preloadImages("top-games", query,
+		function(data, imgArr) {
+			for(var i = 0; i < imgArr.length; i++) {
+				var gameName = data.top[i].game.name
+				$(imgArr[i]).attr("title", gameName);
+				$(imgArr[i]).data("name", gameName);
+				$(imgArr[i]).appendTo(".top-games");
+			}
+			$(".top-games").css("display", "block");
+		}, 
+		function(data, imgElem) {
+			var height = 90; // Must be integer
+			var width = Math.floor(height * .7258); // Must be integer
+
+			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
+			var customSize = data.game.box.template;
+			customSize = customSize.replace("{width}", width);
+			customSize = customSize.replace("{height}", height);
+			var imgsrc = data.game.box.small;
+			$(imgElem).attr("src", customSize);
+	})
+});
+
 function searchInput() {
 	clearTimeout(timeout);
 	$(".text-status").text("");
@@ -145,36 +230,6 @@ function searchInput() {
 		});
 	}, 400);
 }
-
-$(document).ready(function() {
-
-	console.log(window.innerHeight);
-	menuHeight();
-	//topGames();
-	var limit = 10; // Default limit 10
-	var query = "https://api.twitch.tv/kraken/games/top?limit=" + limit;
-	preloadImages("top-games", query,
-		function(data, imgArr) {
-			for(var i = 0; i < imgArr.length; i++) {
-				var gameName = data.top[i].game.name
-				$(imgArr[i]).attr("title", gameName);
-				$(imgArr[i]).data("name", gameName);
-				$(imgArr[i]).appendTo(".top-games");
-			}
-			$(".top-games").css("display", "block");
-		}, 
-		function(data, imgElem) {
-			var height = 90; // Must be integer
-			var width = Math.floor(height * .7258); // Must be integer
-
-			// e.g. https://static-cdn.jtvnw.net/ttv-boxart/League%20of%20Legends-{width}x{height}.jpg
-			var customSize = data.game.box.template;
-			customSize = customSize.replace("{width}", width);
-			customSize = customSize.replace("{height}", height);
-			var imgsrc = data.game.box.small;
-			$(imgElem).attr("src", customSize);
-	})
-});
 
 /* On success drop, 
  * 	Append draggable element
@@ -442,6 +497,44 @@ function twitchRequest(query) {
 
 }
 
+function twitchRequestUserInfo(oauthToken) {
+	var promise = $.ajax({
+		url: "https://api.twitch.tv/kraken/user", 
+		method: 'GET', 
+		headers: {
+			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			"Authorization": "OAuth " + oauthToken
+		},
+		error : function(jqXHR, textStatus, errorThrown) { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+   				console.log('There was a 404 error.');
+			}
+		}
+	});
+
+	return promise;
+
+}
+
+function twitchRequestFollowers(oauthToken) {
+	var promise = $.ajax({
+		url: "https://api.twitch.tv/kraken/streams/followed?stream_type=all", 
+		method: 'GET', 
+		headers: {
+			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			"Authorization": "OAuth " + oauthToken
+		},
+		error : function(jqXHR, textStatus, errorThrown) { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+   				console.log('There was a 404 error.');
+			}
+		}
+	});
+
+	return promise;
+
+}
+
 function findStream(streamer) {
 
 	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
@@ -510,7 +603,7 @@ function findStream(streamer) {
 		var arDiv = $("<div>");
 		arDiv.appendTo(tools);
 		var aspect_ratio = $("<img></img>");
-		aspect_ratio.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+		aspect_ratio.attr("src", "/images/aspect_ratio_16_9_red.png");
 		aspect_ratio.addClass("aspect-ratio");
 		aspect_ratio.data("enable", true);
 		aspect_ratio.appendTo(arDiv);
@@ -631,13 +724,13 @@ $(document).on({
 		var toggle = icon.data("enable");
 		if(toggle) {
 			icon.data("enable", false);
-			icon.attr("src", "assets/images/aspect_ratio_16_9.png");
+			icon.attr("src", "/images/aspect_ratio_16_9.png");
 			text.text("Enable Aspect Ratio");
 			toggleAspectRatio(vid, false);
 		}
 		else {
 			icon.data("enable", true);
-			icon.attr("src", "assets/images/aspect_ratio_16_9_red.png");
+			icon.attr("src", "/images/aspect_ratio_16_9_red.png");
 			text.text("Disable Aspect Ratio");
 			toggleAspectRatio(vid, true);	
 		}
@@ -785,6 +878,7 @@ function streamListLoad(query) {
 			$(imgElem).data("template", data.preview.template);
 	})
 }
+
 // CURRENTLY NOT USING
 //---------------------------------------------------------------------------------------------------
 function preloadImages2(query, size_data) {

@@ -16,11 +16,11 @@
 	<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css"> -->
 
 	<!-- Jquery UI Theme -->
-	<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
+	<link rel="stylesheet" type="text/css" href="https://code.jquery.com/ui/1.12.1/themes/ui-lightness/jquery-ui.css">
 	
 	<!-- Stylesheets -->
-	<!-- <link rel="stylesheet" type="text/css" href="assets/css/reset.css"> -->
-	<link rel="stylesheet" type="text/css" href="assets/css/style.css">
+	<!-- <link rel="stylesheet" type="text/css" href="/css/reset.css"> -->
+	<link rel="stylesheet" type="text/css" href="css/style.css">
 
 	<!-- JQuery -->
 	<script src="https://code.jquery.com/jquery-3.1.0.min.js" integrity="sha256-cCueBR6CsyA4/9szpPfrX3s49M9vUU5BgtiJj06wt/s=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 	<!-- Twitch Javascript SDK -->
 	<script src="https://ttv-api.s3.amazonaws.com/twitch.min.js"></script>
-	<script src= "http://player.twitch.tv/js/embed/v1.js"></script>
+	<script src= "https://player.twitch.tv/js/embed/v1.js"></script>
 
 	<!-- Font Awesome -->
 	<script src="https://use.fontawesome.com/323615c8ac.js"></script>
@@ -42,9 +42,9 @@
 				<label for="streamer">Enter Stream</label>
 				<br>
 				<input type="text" name="Stream" placeholder="Stream" id="streamer"/>
-				<img class="loading" src="assets/images/loading.gif">
-				<img class="green status" src="assets/images/green.png">
-				<img class="red status" src="assets/images/red.png">
+				<img class="loading" src="/images/loading.gif">
+				<img class="green status" src="/images/green.png">
+				<img class="red status" src="/images/red.png">
 				<span class="text-status"></span>
 				<!-- <button id="startStream">Watch</button> -->
 				<div class="searchResults">
@@ -55,6 +55,9 @@
  					<input type="checkbox" name="chat" id="include_chat">
  					<label for="include_chat"> Include chat</label>
 				</form>
+				<span id="loggedInUser"></span>
+				<button id="logoutBtn">Logout</button>
+				<img src="https://ttv-api.s3.amazonaws.com/assets/connect_dark.png" class="twitch-connect" href="#" />
 			</div>
 			<!-- <div class="col-lg-6">
 				<label for="streamer">Enter Chat</label><br>
@@ -79,8 +82,12 @@
 		<div class= "row content content-active" id="Home"></div>	
 	</div>
 
+
 	<!-- Materialize JS
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script> -->
 	<script type="text/javascript" src="assets/js/app.js"></script>
+
+	<script type="text/javascript" src="/js/app.js"></script>
+
 </body>
 </html>
