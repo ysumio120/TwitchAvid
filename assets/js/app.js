@@ -173,7 +173,8 @@ function searchInput() {
 		console.log(streamer);
 		var query = "https://api.twitch.tv/kraken/streams/" + streamer;
 
-		var searchChannel = "https://api.twitch.tv/kraken/search/channels?limit=5&q=" + streamer;
+		var channelLimit = 5;
+		var searchChannel = "https://api.twitch.tv/kraken/search/channels?limit=" + channelLimit + "&q=" + streamer;
 		var searchGame = "https://api.twitch.tv/kraken/search/games?q=" + streamer + "&type=suggest";
 
 		twitchRequest(searchChannel).done(function(response) {
@@ -183,12 +184,30 @@ function searchInput() {
 				$("<b>Channels</b>").appendTo(".channels");
 				$(".searchResults").css("display", "block");
 			}
+			var entryArr = [];
  			for(var i = 0; i < results.length; i++) {
-				var entry = $("<div>");
-				entry.text(results[i].display_name);
-				entry.data("name", results[i].name);
-				console.log(entry.data("name"));
-				entry.appendTo(".channels");
+				var name = results[i].name;
+				var display_name = results[i].display_name;
+
+				entryArr[i] = $("<div>");
+				entryArr[i].text(display_name);
+				entryArr[i].data("name", name);
+				console.log(entryArr[i]);
+				var channelQuery = "https://api.twitch.tv/kraken/streams/" + name;
+				twitchRequest(channelQuery).done(function(response) {
+					if(response.stream == null) {
+						var offline = $("<img>");
+						offline.attr("src", "/images/red.png");
+						entryArr[i].append(offline);	
+					}
+					else {
+						var online = $("<img>");
+						online.attr("src", "/images/green.png");
+						entryArr[i].append(online);	
+					}
+				});
+
+				entryArr[i].appendTo(".channels");
 			}
 			//console.log(response);
 		});
