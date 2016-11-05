@@ -296,6 +296,8 @@ body {
 	width: 100%;
 }
 
+.twitch-connect,
+#loggedInUser,
 #logoutBtn {
 	display: none;
 }

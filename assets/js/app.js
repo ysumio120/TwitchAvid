@@ -70,8 +70,8 @@ var menuHeight = function() {
     }, 50);
 };
 
-// https://api.twitch.tv/kraken/oauth2/authorize?response_type=token &client_id=q0ojsiq3xgiqjopism2gu3z35py99jg&redirect_uri=https://google.com&scope=user_read channel_read user_subscriptions
 $(document).ready(function() {
+	var token;
 	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
     // the sdk is now loaded
     	if (error) {
@@ -80,43 +80,50 @@ $(document).ready(function() {
   		}
   		if (status.authenticated) {
     	// user is currently logged in
-    		console.log("Someone already logged in")
+    		console.log("Someone already logged in");
+    		token = Twitch.getToken();
+    		twitchRequestUserInfo(token).done(function(response) {
+				console.log(response);
+				var username = response.display_name;
+				$("#loggedInUser").text(username).css("display", "inline-block");
+				$("#logoutBtn").css("display", "inline-block");
+			});
+			twitchRequestFollowers(token).done(function(response) {
+				console.log(response);
+			})
+  		}
+  		else {
+  			$(".twitch-connect").css("display", "inline-block");
   		}
   	
-  		var token = Twitch.getToken();
-		alert(token);
-		twitchRequestUserInfo(token).done(function(response) {
-			console.log(response);
-			var username = response.display_name;
-			$("#loggedInUser").text(username);
-			$(".twitch-connect").hide(function() {
-				$("#logoutBtn").show();
-			})
-		});
-		twitchRequestFollowers(token).done(function(response) {
-			console.log(response);
+	  	$('.twitch-connect').click(function() {
+				twitchLogin();
 		})
   	});	
-  	$('.twitch-connect').click(function() {
-			Twitch.login({
-			scope: ['user_read', 'channel_read', 'user_subscriptions']
-			});
-	});
-
-  	Twitch.getStatus(function(err, status) {
-		if (status.authenticated) {
-	    	console.log('authenticated!');
-	  	}
-	  	else console.log('not authenticated');
-	});
+  	
+  	// Cannot use Twitch.login() from Twitch SDK
+  	// Builds URL with parameter force_verify set to 'true' (important)
+  	// Ensures authorization for every login attempt
+	function twitchLogin() {
+		var headers = {
+			response_type: "token",
+			client_id: "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			redirect_uri: "https://twitchavid-development.herokuapp.com/",
+			scope: "user_read channel_read user_subscriptions",
+			force_verify: "true"
+		}
+		
+		var url = "https://api.twitch.tv/kraken/oauth2/authorize?" + decodeURIComponent($.param(headers));
+		window.location = url;
+	}
 
 	$("#logoutBtn").click(function() {
 		Twitch.logout(function(error) {
     		if(error) throw error;
     		$("#loggedInUser").empty();
-			$(".twitch-connect").show(function() {
-				$("#logoutBtn").hide();
-			})
+    		$("#loggedInUser").css("display", "none");
+    		$("#logoutBtn").css("display", "none");
+			$(".twitch-connect").css("display", "inline-block");
 		});
 	});
 
@@ -147,11 +154,6 @@ $(document).ready(function() {
 			$(imgElem).attr("src", customSize);
 	})
 });
-
-Twitch.logout(function(error) {
-    // the user is now logged out
-});
-
 
 function searchInput() {
 	clearTimeout(timeout);
@@ -877,9 +879,6 @@ function streamListLoad(query) {
 	})
 }
 
-function login() {
-	
-}
 // CURRENTLY NOT USING
 //---------------------------------------------------------------------------------------------------
 function preloadImages2(query, size_data) {
