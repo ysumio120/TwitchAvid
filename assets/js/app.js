@@ -85,28 +85,41 @@ $(document).ready(function() {
   	
   		var token = Twitch.getToken();
 		alert(token);
-		twitchRequestOAUTH(token).done(function(response) {
+		twitchRequestUserInfo(token).done(function(response) {
+			console.log(response);
+			var username = response.display_name;
+			$("#loggedInUser").text(username);
+			$(".twitch-connect").hide(function() {
+				$("#logoutBtn").show();
+			})
+		});
+		twitchRequestFollowers(token).done(function(response) {
 			console.log(response);
 		})
   	});	
   	$('.twitch-connect').click(function() {
-		console.log("CLICK");
-			Twitch.getStatus(function(err, status) {
-			if (status.authenticated) {
-		    	console.log('authenticated!');
-		  	}
-		  	else console.log('not authenticated');
-		});
 			Twitch.login({
 			scope: ['user_read', 'channel_read', 'user_subscriptions']
 			});
 	});
+
   	Twitch.getStatus(function(err, status) {
 		if (status.authenticated) {
 	    	console.log('authenticated!');
 	  	}
 	  	else console.log('not authenticated');
 	});
+
+	$("#logoutBtn").click(function() {
+		Twitch.logout(function(error) {
+    		if(error) throw error;
+    		$("#loggedInUser").empty();
+			$(".twitch-connect").show(function() {
+				$("#logoutBtn").hide();
+			})
+		});
+	});
+
 	console.log(window.innerHeight);
 	menuHeight();
 	//topGames();
@@ -482,13 +495,32 @@ function twitchRequest(query) {
 
 }
 
-function twitchRequestOAUTH(oauthToken) {
+function twitchRequestUserInfo(oauthToken) {
 	var promise = $.ajax({
 		url: "https://api.twitch.tv/kraken/user", 
 		method: 'GET', 
 		headers: {
 			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
-			"Authrorization": "OAuth " + oauthToken
+			"Authorization": "OAuth " + oauthToken
+		},
+		error : function(jqXHR, textStatus, errorThrown) { 
+			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
+   				console.log('There was a 404 error.');
+			}
+		}
+	});
+
+	return promise;
+
+}
+
+function twitchRequestFollowers(oauthToken) {
+	var promise = $.ajax({
+		url: "https://api.twitch.tv/kraken/streams/followed?stream_type=all", 
+		method: 'GET', 
+		headers: {
+			"Client-ID": "q0ojsiq3xgiqjopism2gu3z35py99jg",
+			"Authorization": "OAuth " + oauthToken
 		},
 		error : function(jqXHR, textStatus, errorThrown) { 
 			if(jqXHR.status == 404 || errorThrown == 'Not Found') { 
