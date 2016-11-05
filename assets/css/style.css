@@ -7,6 +7,9 @@ body {
 	color: white;
 }
 
+#streamer{
+	color:black;
+}
 .vid, 
 .chat,
 .temp {
@@ -268,6 +271,7 @@ body {
 	z-index: 1;
 	position: absolute;
 	cursor: pointer;
+	color: black;
 }
 
 .results-hover {
