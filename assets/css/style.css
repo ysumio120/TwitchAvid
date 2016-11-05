@@ -295,3 +295,9 @@ body {
 .live-streams-list > div > img {
 	width: 100%;
 }
+
+.twitch-connect,
+#loggedInUser,
+#logoutBtn {
+	display: none;
+}
