@@ -1,5 +1,6 @@
 body {
 	overflow-y: scroll;
+	padding-bottom: 100px;
 }
 
 .vid, 
@@ -301,3 +302,28 @@ body {
 #logoutBtn {
 	display: none;
 }
+
+.entry > img {
+	width: 19px;
+	float: right;
+}
+
+.twitch-connect {
+	cursor: pointer;
+}
+
+.contextmenu {
+	background-color: white;
+	border: 1px solid grey;
+	display: none;
+	position: absolute;
+	z-index: 2;
+}
+ .contextmenu > div {
+ 	padding: 4px 10px;
+ }
+
+ .contextmenu > div:hover {
+ 	background-color: rgba(0,0,0,0.3);
+ 	cursor: default;
+ }
