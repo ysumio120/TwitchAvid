@@ -3,7 +3,7 @@ var path = require('path');
 
 var app = express();
 
-var port = process.env.PORT;
+var port = process.env.PORT || 8080;
 // var port = 8080;
 
 // app.use('/assets', express.static(path.join(__dirname, '/css')));
