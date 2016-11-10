@@ -21,11 +21,11 @@ var draggableConfig = {
 
 		// Create 'shadow' of element with same dimensions
 		var clone = $(this).parent().clone();
-		clone.children(".vid").empty();
-		clone.children(".vid").css("width", width);
-		clone.children(".vid").css("height", height);
-		clone.children(".vid").css("background-color", "grey");
-		clone.children(".vid").css("opacity", 0.5);
+		clone.children(".vid, .chat").empty();
+		clone.children(".vid, .chat").css("width", width);
+		clone.children(".vid, .chat").css("height", height);
+		clone.children(".vid, .chat").css("background-color", "grey");
+		clone.children(".vid, .chat").css("opacity", 0.5);
 		return clone;
 	},
 	containment: "parent",
@@ -57,6 +57,23 @@ var resizableConfig = {
 		overlay.css("display", "none");
 	}
 };
+
+function formatNumwithCommas(number) {
+	var result = [];
+	number = number.toString();
+	if(number.length <= 3)
+		return number;
+	else {
+		do {
+			var sub = number.substr(number.length-3);
+			result.unshift(sub);
+			number = number.substr(0, number.length-3);
+		}while(number.length > 3);
+		result.unshift(number);
+	}
+
+	return result.join();
+}
 
 $(document).ready(function() {
 	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
@@ -220,17 +237,14 @@ function searchInput() {
 	}, 400);
 }
 
-/* On success drop, 
- * 	Append draggable element
- *	Reset position of draggable element
- * 	Remove temporary div placeholder
- *  Remove border styling
- */
+// Will swap (and maintain dimensions) streams
 $(document).on("drop", ".ui-droppable", function(event, ui) {
-	var otherVid = $(this).children(".vid");
+	var otherVid = $(this).children(".vid, .chat");
 	var oldParent = ui.draggable.parent();
 	oldParent.append(otherVid);
 	$(this).append(ui.draggable);
+	oldParent.css("width", "");
+	$(this).css("width", "");
 });
 
 // 
@@ -560,6 +574,10 @@ function findStream(streamer) {
 		// Create interactive Iframe Embed
 		var player = new Twitch.Player(streamer + "-" + currentTab.data("tab"), options);
 		
+		//vid_container.width(vidEmbed.outerWidth());
+		vidEmbed.width(vidEmbed.innerWidth());
+		//vidEmbed.height(vidEmbed.innerHeight());
+
 		// Create draggable object
 		vidEmbed.draggable(draggableConfig);
 		
@@ -568,7 +586,11 @@ function findStream(streamer) {
 
 		if($("input[name='chat']").prop("checked")) {
 			console.log("Chat Checked");
-			findChat(streamer);
+			var dimensions = { // Default chat dimensions (stream dimensions)
+				width: vidEmbed.innerWidth(),
+				height: vidEmbed.innerHeight()
+			}
+			findChat(streamer, dimensions);
 		}
 	});
 
@@ -579,17 +601,18 @@ function findStream(streamer) {
 	return false;	
 }
 
-function findChat(streamer) {
+function findChat(streamer, dimensions) {
 	if(!streamer) {
 		return;
 	}
+
 	var query = "https://api.twitch.tv/kraken/chat/" + streamer;
 	
 	twitchRequest(query).done(function(request) {
 		var query = "http://www.twitch.tv/" + streamer + "/chat";
 
 		var chat_container = $("<div>");
-		chat_container.addClass("col-lg-6");
+		chat_container.css("width", "50%");
 		//vid_container.attr("id", "vid" + vidNum);
 		chat_container.appendTo("#" + currentTab.data("tab"));
 		chat_container.droppable({
@@ -606,6 +629,10 @@ function findChat(streamer) {
 		chatEmbed = $("<div></div>");
 		chatEmbed.addClass("chat " + streamer);
 		chatEmbed.appendTo(chat_container);
+
+		var resizableOverlay = $("<div>");
+		resizableOverlay.addClass("resizable-overlay");
+		resizableOverlay.appendTo(chatEmbed);
 
 		var deleteChat = $("<i></i>");
 		deleteChat.addClass("fa fa-times");
@@ -626,7 +653,11 @@ function findChat(streamer) {
 
 		chat.appendTo(chatEmbed);
 
+		chatEmbed.width(dimensions.width); // Set initial width
+		chatEmbed.height(dimensions.height); // Set initial height
+
 		chatEmbed.draggable(draggableConfig);
+		chatEmbed.resizable(resizableConfig);
 
 		$("#chat").val("");
 		$(".green").removeClass("show-status");
@@ -718,7 +749,7 @@ $("#search").on("click", function(event) {
 
 $(".top-games").on("click", "img", function() {
 	$(".live-streams-list").empty();
-	$(".live-streams-list").css("display", "none");
+	//$(".live-streams-list").css("display", "none");
 	var game = $(this).data("name");
 	var limit = 25; // Default limit 25
 	var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + game + "&limit=" + limit;
@@ -792,7 +823,7 @@ function streamListLoad(query) {
 					var viewerCount = data.streams[i].viewers;
 					liveStreamer.append($(imgArr[i]));
 
-					var label = $("<div>").html($(imgArr[i]).data("display_name") + "&nbsp;&#8226;&nbsp" + viewerCount + " viewers");
+					var label = $("<div>").html($(imgArr[i]).data("display_name") + "&nbsp;&#8226;&nbsp" + formatNumwithCommas(viewerCount) + " viewers");
 					liveStreamer.append(label);
 					liveStreamer.appendTo(".live-streams-list");
 			}
