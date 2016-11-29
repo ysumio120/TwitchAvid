@@ -1,5 +1,7 @@
 # TwitchAvid
 
+TwitchAvid allows users to watch multiple streams on a single page. Supported by Twitch API
+
 To run locally, start the server by running this command
 
 ```
