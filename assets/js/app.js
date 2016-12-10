@@ -16,6 +16,16 @@ $("#login").click(function() {
 	});
 });
 
+
+$("#signup").click(function() {
+	var username = $("#signupusername").val();
+	var password = $("#signuppassword").val();
+	
+	$.post("/users/signup", {username: username, password: password}, function(data) {
+		console.log(data);
+	});
+});
+
 var draggableConfig = {
 	addClasses: true,
 	revert: "invalid",
