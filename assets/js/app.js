@@ -104,9 +104,10 @@ $(document).ready(function() {
     		var userQuery = "https://api.twitch.tv/kraken/user";
     		twitchRequest(userQuery).done(function(userResponse) {
 				var username = userResponse.display_name;
+				console.log(userResponse.email);
 				$("#loggedInUser").text(username).css("display", "inline-block");
 				$("#logoutBtn").css("display", "inline-block");
-			
+				
 				var followChannelsQuery = "https://api.twitch.tv/kraken/users/" + userResponse.name + "/follows/channels"
 				twitchRequest(followChannelsQuery).done(function(followChannelsResponse) {
 					console.log(followChannelsResponse);

@@ -12,8 +12,14 @@ router.get("/", function(req, res) {
 	});
 })
 
+router.get("/signin/:username", function (req, res) {
+	Users.findOne({username: req.params.username}, function(err, user) {
+		
+	})
+})
+
 router.post("/signup", function(req, res) {
-	var username = 4;
+	var email = req.body.email;
 	var password = req.body.password;
 	bcrypt.genSalt(10, function(err, salt) {
 		if(err) throw err;
