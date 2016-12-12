@@ -1,6 +1,5 @@
 var express = require("express");
 var mongoose = require("mongoose");
-var bcrypt = require("bcryptjs");
 var Users = require("../models/users");
 
 var router = express.Router();
@@ -12,27 +11,19 @@ router.get("/", function(req, res) {
 	});
 })
 
-router.get("/signin/:username", function (req, res) {
+router.get("/:username", function (req, res) {
 	Users.findOne({username: req.params.username}, function(err, user) {
-		
+		if(err) throw err;
+		res.json(user);
 	})
 })
 
 router.post("/signup", function(req, res) {
+	var username = req.body.username;
 	var email = req.body.email;
-	var password = req.body.password;
-	bcrypt.genSalt(10, function(err, salt) {
-		if(err) throw err;
-
-	    bcrypt.hash(password, salt, function(err, hash) {
-	        if(err) throw err;
-
-	        var hashedPassword = hash;
-	        Users.create({name: username, password: hashedPassword}, function(err, instance) {
-	        	console.log(instance);
-	        });
-	    });
-	});
+	Users.create({username: username, email: email}, function(err, user) {
+		res.json(user);
+	})
 })
 
 module.exports = router;

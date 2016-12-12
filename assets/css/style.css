@@ -286,7 +286,7 @@ body {
 
 .live-streams-list {
 	overflow-y: scroll;
-	height: 650px;
+	height: 350px;
 }
 
 .live-streams-list > div {

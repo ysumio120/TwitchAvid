@@ -7,25 +7,6 @@ var prevDocument;
 var currDocument = $(document).height();
 var token;
 
-$("#login").click(function() {
-	var username = $("#username").val();
-	var password = $("#password").val();
-	
-	$.post("/login", {username: "username", password: "password"}, function(data) {
-		console.log(data);
-	});
-});
-
-
-$("#signup").click(function() {
-	var username = $("#signupusername").val();
-	var password = $("#signuppassword").val();
-	
-	$.post("/users/signup", {username: username, password: password}, function(data) {
-		console.log(data);
-	});
-});
-
 var draggableConfig = {
 	addClasses: true,
 	revert: "invalid",
@@ -94,30 +75,64 @@ function formatNumwithCommas(number) {
 	return result.join();
 }
 
+$("#save").click(function() {
+	var allContent = $(".content");
+	console.log(allContent);
+	var tabs = [];
+	for(var i = 0; i < allContent.length; i++) {
+		var tab = {};
+		tab.label = $(allContent[i]).attr("id");
+		
+		tab.streamers = [];
+		var vids = $(allContent[i]).find(".vid");
+		for(var j = 0; j < vids.length; j++) {
+			streamer = {};
+			streamer.name = $(vids[j]).attr("data-name");
+			streamer.display_name = $(vids[j]).attr("data-display_name");
+			tab.streamers.push(streamer);
+		}
+		tabs.push(tab);
+	}
+
+	console.log(tabs);
+
+})
+
 $(document).ready(function() {
 	Twitch.init({clientId: 'q0ojsiq3xgiqjopism2gu3z35py99jg'}, function(error, status) {
     	if (error) {
    			console.log(error);
   		}
-  		if (status.authenticated) {
+  		if (status.authenticated) { // Check if user authenticated Twitch account
     		token = Twitch.getToken();
     		var userQuery = "https://api.twitch.tv/kraken/user";
-    		twitchRequest(userQuery).done(function(userResponse) {
-				var username = userResponse.display_name;
-				console.log(userResponse.email);
-				$("#loggedInUser").text(username).css("display", "inline-block");
-				$("#logoutBtn").css("display", "inline-block");
-				
-				var followChannelsQuery = "https://api.twitch.tv/kraken/users/" + userResponse.name + "/follows/channels"
-				twitchRequest(followChannelsQuery).done(function(followChannelsResponse) {
-					console.log(followChannelsResponse);
-				});
+    		twitchRequest(userQuery).done(function(twitchUser) {
+    			$.get("/users/" + twitchUser.name, function(dbUser) {
+    				console.log(dbUser);
+    				$("#save").attr("data-id", dbUser._id);
+    				if(dbUser == null) { // Check if user is in database
+    					$.post("users/signup", {username: twitchUser.name, email: twitchUser.email}, function(dbUser) {
+    							console.log(dbUser);
+    							$("#save").attr("data-id", dbUser._id);
+    					})
+    				}
+	    			console.log(twitchUser);
+						var display_name = twitchUser.display_name;
+						console.log(twitchUser.email);
+						$("#loggedInUser").text(display_name).css("display", "inline-block");
+						$("#logoutBtn").css("display", "inline-block");
+						
+						var followChannelsQuery = "https://api.twitch.tv/kraken/users/" + twitchUser.name + "/follows/channels"
+						twitchRequest(followChannelsQuery).done(function(followChannelsResponse) {
+							console.log(followChannelsResponse);
+						});
 
-				var followStreamsQuery = "https://api.twitch.tv/kraken/streams/followed?stream_type=all";
-				twitchRequest(followStreamsQuery).done(function(followStreamsResponse) {
-					console.log(followStreamsResponse);
-				})
-			});
+						var followStreamsQuery = "https://api.twitch.tv/kraken/streams/followed?stream_type=all";
+						twitchRequest(followStreamsQuery).done(function(followStreamsResponse) {
+							console.log(followStreamsResponse);
+    				})
+					})
+				});
 			
   		}
   		else {
@@ -136,13 +151,13 @@ $(document).ready(function() {
 		var headers = {
 			response_type: "token",
 			client_id: "q0ojsiq3xgiqjopism2gu3z35py99jg",
-			redirect_uri: "https://twitchavid-development.herokuapp.com/",
+			redirect_uri: "http://localhost:8080",
 			scope: "user_read channel_read user_subscriptions",
 			force_verify: "true"
 		}
 		
 		var url = "https://api.twitch.tv/kraken/oauth2/authorize?" + decodeURIComponent($.param(headers));
-		window.location = url;
+		window.location.href = url;
 	}
 
 	$("#logoutBtn").click(function() {
@@ -514,8 +529,8 @@ function twitchRequest(query) {
 	return promise;
 }
 
-function findStream(streamer) {
-	var query = "https://api.twitch.tv/kraken/streams/" + streamer;
+function findStream(name, display_name) {
+	var query = "https://api.twitch.tv/kraken/streams/" + name;
 
 	twitchRequest(query).done(function(response) {
 		console.log(response);
@@ -540,9 +555,11 @@ function findStream(streamer) {
 		});
 		vidNum++;
 		var vidEmbed = $("<div>");
-		vidEmbed.attr("id", streamer + "-" + currentTab.data("tab"));
+		vidEmbed.attr("id", name + "-" + currentTab.data("tab"));
 		vidEmbed.addClass("vid");
-		vidEmbed.data("name", streamer);
+		vidEmbed.data("name", name);
+		vidEmbed.attr("data-name", name);
+		vidEmbed.attr("data-display_name", display_name);
 		vidEmbed.appendTo(vid_container);
 		
 		// Icon to remove stream
@@ -588,11 +605,11 @@ function findStream(streamer) {
 
 		// Configure options for iframe embed
 		var options = {
-			channel: streamer
+			channel: name
 		};
 
 		// Create interactive Iframe Embed
-		var player = new Twitch.Player(streamer + "-" + currentTab.data("tab"), options);
+		var player = new Twitch.Player(name + "-" + currentTab.data("tab"), options);
 		
 		//vid_container.width(vidEmbed.outerWidth());
 		vidEmbed.width(vidEmbed.innerWidth());
@@ -610,7 +627,7 @@ function findStream(streamer) {
 				width: vidEmbed.innerWidth(),
 				height: vidEmbed.innerHeight()
 			}
-			findChat(streamer, dimensions);
+			findChat(name, dimensions);
 		}
 	});
 
@@ -811,8 +828,9 @@ function preloadImages(queryType, query, loadComplete, srcLoad) {
 }
 
 $(".live-streams-list").on("click", "div", function() {
-	var channel = $(this).children("img").data("name");
-	findStream(channel);
+	var name = $(this).children("img").data("name");
+	var display_name = $(this).children("img").data("display_name");
+	findStream(name, display_name);
 	return false;
 });
 
