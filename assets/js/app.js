@@ -89,12 +89,15 @@ $("#save").click(function() {
 			streamer = {};
 			streamer.name = $(vids[j]).attr("data-name");
 			streamer.display_name = $(vids[j]).attr("data-display_name");
-			tab.streamers.push(streamer);
+			tab.streamers.push(JSON.stringify(streamer));
 		}
 		tabs.push(tab);
 	}
 
-	console.log(tabs);
+	var id = $(this).attr("data-id");
+	$.post("/users/save", {id: id, tabs: JSON.stringify(tabs)}, function(response) {
+		console.log(response);
+	})
 
 })
 
@@ -110,10 +113,12 @@ $(document).ready(function() {
     			$.get("/users/" + twitchUser.name, function(dbUser) {
     				console.log(dbUser);
     				$("#save").attr("data-id", dbUser._id);
+    				$("#save").css("display", "inline-block");
     				if(dbUser == null) { // Check if user is in database
     					$.post("users/signup", {username: twitchUser.name, email: twitchUser.email}, function(dbUser) {
     							console.log(dbUser);
     							$("#save").attr("data-id", dbUser._id);
+    							$("#save").css("display", "inline-block");
     					})
     				}
 	    			console.log(twitchUser);

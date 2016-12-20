@@ -239,6 +239,10 @@ body {
 	height: 23px;
 }
 
+#save {
+  display:none;
+}
+
 .fa.fa-chevron-up,
 .fa.fa-chevron-down {
 	color: #8b8b8b;
