@@ -1,3 +1,46 @@
+#search {
+  height: 30px;
+  padding: 0 0;
+  width: 100%;
+}
+
+.searchResults {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+}
+
+.results {
+  width: 100%;
+  padding: 0;
+  background-color: white;
+  border: 1px solid black;
+  display: none;
+  z-index: 1;
+  position: absolute;
+  cursor: pointer;
+}
+
+#profile {
+  float: right;
+  margin-top: -4px;
+}
+nav > div {
+  display: inline-block;
+}
+
+.navbar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  height: 60px;
+  padding-top: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  border-radius: 0;  
+}
+
 body {
 	overflow-y: scroll;
 	padding-bottom: 100px;
@@ -263,18 +306,6 @@ body {
     display: none;
 }
 
-.searchResults {
-	background-color: white;
-	border: 1px solid black;
-	width: 250px;
-	height: 225px;
-	overflow-y: scroll;
-	display: none;
-	z-index: 1;
-	position: absolute;
-	cursor: pointer;
-}
-
 .results-hover {
 	background-color: rgba(0,0,0,0.3);
 }
@@ -311,6 +342,16 @@ body {
 #loggedInUser,
 #logoutBtn {
 	display: none;
+}
+
+#loggedInUsername {
+  display: none;
+  color: white;
+}
+
+#user_logo {
+  width: 40px;
+  margin-right: 10px;
 }
 
 .entry > img {

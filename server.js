@@ -22,5 +22,5 @@ app.use("/", application_controller)
 app.use("/users", users_controller);
 
 app.listen(port, function() {
-  console.log("server connected");
+  console.log("Listening on port " + port);
 });

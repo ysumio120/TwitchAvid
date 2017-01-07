@@ -123,8 +123,15 @@ $(document).ready(function() {
     				}
 	    			console.log(twitchUser);
 						var display_name = twitchUser.display_name;
+						var user_logo = twitchUser.logo;
 						console.log(twitchUser.email);
-						$("#loggedInUser").text(display_name).css("display", "inline-block");
+						$("#loggedInUsername").text(display_name).css("display", "inline");
+						if(user_logo == null) {
+							$("#profile div").text("?");
+						}
+						else {
+							$("#user_logo").attr("src", user_logo);
+						}
 						$("#logoutBtn").css("display", "inline-block");
 						
 						var followChannelsQuery = "https://api.twitch.tv/kraken/users/" + twitchUser.name + "/follows/channels"
@@ -207,7 +214,7 @@ function searchInput() {
 		var search = $("#search").val();
 
 		if(search == "") {
-			$(".searchResults").css("display", "none");
+			$(".results").css("display", "none");
 			$(".loading").css("display", "none");
 			$(".channels b, .games b").nextAll().remove();
 			return;
@@ -221,7 +228,7 @@ function searchInput() {
 			$(".channels b").nextAll().remove();
 			var results = response.channels
 			if(results.length > 0) {
-				$(".searchResults").css("display", "block");
+				$(".results").css("display", "block");
 			}
 			var entryArr = [];
  			for(var i = 0; i < results.length; i++) {
@@ -260,7 +267,7 @@ function searchInput() {
 			$(".games b").nextAll().remove();
 			var results = response.games
 			if(results.length > 0) {
-				$(".searchResults").css("display", "block");
+				$(".results").css("display", "block");
 			}
 			var limit = 4;
 			if(results.length < 4)
@@ -289,7 +296,7 @@ $(document).on("drop", ".ui-droppable", function(event, ui) {
 
 // 
 $("#search").on("keydown", function(event) {
-	var hovered = $(".searchResults").find(".results-hover");
+	var hovered = $(".results").find(".results-hover");
 	if(!event)
 		event = window.event;
 	var keyCode = event.keyCode || event.which;
@@ -335,7 +342,7 @@ $("#search").on("keydown", function(event) {
 			var category;
 			var results;
 			if(hovered.length == 0) 
-				category = $(".searchResults div").first(); 
+				category = $(".results div").first(); 
 			else {
 				var nextResult = hovered.next("div");
 				if(nextResult.length != 0) { 
@@ -364,9 +371,9 @@ $("#search").on("keydown", function(event) {
 });
 
 // Events when handling with each search result
-$(".searchResults > div").on({
+$(".results > div").on({
 	mousemove: function() {
-		var hovered = $(".searchResults").find(".results-hover");
+		var hovered = $(".results").find(".results-hover");
 		hovered.removeClass("results-hover");
 		$(this).addClass("results-hover");
 	},
@@ -383,7 +390,7 @@ $(".searchResults > div").on({
 			var query = "https://api.twitch.tv/kraken/streams?stream_type=live&game=" + name + "&limit=" + limit;
 			streamListLoad(query);
 		}
-		$(".searchResults").css("display", "none");
+		$(".results").css("display", "none");
 	}
 }, "div");
 
@@ -771,7 +778,7 @@ function toggleAspectRatio(videoPlayer, toggle) {
 
 // Hide the search results window when user clicks anywhere outside that window 
 $("body").on("click", function() {
-	$(".searchResults").css("display", "none");
+	$(".results").css("display", "none");
 	$(".contextmenu").offset({top: 0, left: 0}); // Reset position of context menu otherwise unusual behavior occurs
 	$(".contextmenu").css("display", "none");
 });
@@ -782,7 +789,7 @@ $("#search").on("click", function(event) {
 	var categories = $(".channels b, .games b").nextAll();
 	for(var i = 0; i < categories.length; i++) {
 		if($(categories[i]).is(":empty") == false) {
-			$(".searchResults").css("display", "block");
+			$(".results").css("display", "block");
 			return false;
 		}
 	}
